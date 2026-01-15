@@ -1,0 +1,382 @@
+function pdxModelFile() constructor {
+    filename = "";
+    error = "";
+
+    static open = function(afile) {
+        if(file_exists(afile)) {
+            self.filename = afile;
+            return true;            
+        }
+        return false;
+    }
+}
+
+enum glbChunk {
+    JSON = 0x4E4F534A,
+    BIN  = 0x004E4942
+}
+
+enum glbComponentType {
+    s8      = 5120,   //    signed byte     Signed, 2’s comp     8
+    u8      = 5121,   //    unsigned byte   Unsigned             8
+    s16     = 5122,   //    signed short    Signed, 2’s comp    16
+    u16     = 5123,   //    unsigned short  Unsigned            16
+    u32     = 5125,   //    unsigned int    Unsigned            32
+    float   = 5126    //    float           Signed              32
+}
+
+function pdxGLTFparems() constructor {
+    static process_json = function(json_struct) {
+        struct_foreach(json_struct, function(_name, _value) {
+            self[$ _name] = _value;
+        });
+    }
+}
+
+function pdxGLTFasset(): pdxGLTFparems() constructor {
+    self.version = "";
+}
+
+function pdxGLTFscene(): pdxGLTFparems() constructor {
+}
+
+function pdxGLTFnode(): pdxGLTFparems() constructor {
+}
+
+function pdxGLTFmaterial(): pdxGLTFparems() constructor {
+}
+
+function pdxGLTFmesh(): pdxGLTFparems() constructor {
+}
+
+function pdxGLTFtexture(): pdxGLTFparems() constructor {
+}
+
+function pdxGLTFimage(): pdxGLTFparems() constructor {
+}
+
+function pdxGLTFaccessor(): pdxGLTFparems() constructor {
+}
+
+function pdxGLTFbufferView(): pdxGLTFparems() constructor {
+}
+
+function pdxGLTFsampler(): pdxGLTFparems() constructor {
+}
+
+function pdxGLTFbuffer(): pdxGLTFparems() constructor {
+}
+
+
+
+
+function pdxGLTFBase(): pdxModelFile() constructor {
+    self.json = "";
+    self.parse_error = "";
+    self.asset = new pdxGLTFasset();
+    self.extensionsUsed = array_create(0);
+    self.scene = 0;
+    self.scenes = array_create(0);
+    self.nodes = array_create(0);
+    self.materials = array_create(0);
+    self.meshes = array_create(0);
+    self.textures = array_create(0); 
+    self.images = array_create(0); 
+    self.accessors = array_create(0); 
+    self.bufferViews = array_create(0); 
+    self.samplers = array_create(0); 
+    self.buffers = array_create(0); 
+
+    self.bincount = 0;
+   
+    static process_json_array = function(target, json_array) {
+        var _al = array_length(json_array);
+        array_resize(target, _al);
+        for(var _i = 0; _i < _al; _i++) {
+            target[_i] = json_array[_i];
+        }
+    }
+    
+    static process_json_scenes = function(json_array) {
+        var _al = array_length(json_array);
+        array_resize(self.scenes, _al);
+        for(var _i = 0; _i < _al; _i++) {
+            if(typeof(json_array[_i]) == "struct") {
+                self.scenes[_i] = new pdxGLTFscene();
+                self.scenes[_i].process_json(json_array[_i]);
+            } else {
+                self.parse_error += "glTF scene is not a struct - got " + typeof(json_array[_i]) + "\n";
+            }
+        }
+    }
+    
+    static process_json_nodes = function(json_array) {
+        var _al = array_length(json_array);
+        array_resize(self.nodes, _al);
+        for(var _i = 0; _i < _al; _i++) {
+            if(typeof(json_array[_i]) == "struct") {
+                self.nodes[_i] = new pdxGLTFnode();
+                self.nodes[_i].process_json(json_array[_i]);
+            } else {
+                self.parse_error += "glTF node is not a struct - got " + typeof(json_array[_i]) + "\n";
+            }
+        }
+    }
+    
+    static process_json_materials = function(json_array) {
+        var _al = array_length(json_array);
+        array_resize(self.materials, _al);
+        for(var _i = 0; _i < _al; _i++) {
+            if(typeof(json_array[_i]) == "struct") {
+                self.materials[_i] = new pdxGLTFmaterial();
+                self.materials[_i].process_json(json_array[_i]);
+            } else {
+                self.parse_error += "glTF material is not a struct - got " + typeof(json_array[_i]) + "\n";
+            }
+        }
+    }
+    
+    static process_json_meshes = function(json_array) {
+        var _al = array_length(json_array);
+        array_resize(self.meshes, _al);
+        for(var _i = 0; _i < _al; _i++) {
+            if(typeof(json_array[_i]) == "struct") {
+                self.meshes[_i] = new pdxGLTFmesh();
+                self.meshes[_i].process_json(json_array[_i]);
+            } else {
+                self.parse_error += "glTF mesh is not a struct - got " + typeof(json_array[_i]) + "\n";
+            }
+        }
+    }
+    
+    static process_json_textures = function(json_array) {
+        var _al = array_length(json_array);
+        array_resize(self.textures, _al);
+        for(var _i = 0; _i < _al; _i++) {
+            if(typeof(json_array[_i]) == "struct") {
+                self.textures[_i] = new pdxGLTFtexture();
+                self.textures[_i].process_json(json_array[_i]);
+            } else {
+                self.parse_error += "glTF texture is not a struct - got " + typeof(json_array[_i]) + "\n";
+            }
+        }
+    }
+    
+    static process_json_images = function(json_array) {
+        var _al = array_length(json_array);
+        array_resize(self.images, _al);
+        for(var _i = 0; _i < _al; _i++) {
+            if(typeof(json_array[_i]) == "struct") {
+                self.images[_i] = new pdxGLTFimage();
+                self.images[_i].process_json(json_array[_i]);
+            } else {
+                self.parse_error += "glTF iamge is not a struct - got " + typeof(json_array[_i]) + "\n";
+            }
+        }
+    }
+    
+    static process_json_accessors = function(json_array) {
+        var _al = array_length(json_array);
+        array_resize(self.accessors, _al);
+        for(var _i = 0; _i < _al; _i++) {
+            if(typeof(json_array[_i]) == "struct") {
+                self.accessors[_i] = new pdxGLTFaccessor();
+                self.accessors[_i].process_json(json_array[_i]);
+            } else {
+                self.parse_error += "glTF accessor is not a struct - got " + typeof(json_array[_i]) + "\n";
+            }
+        }
+    }
+    
+    static process_json_bufferViews = function(json_array) {
+        var _al = array_length(json_array);
+        array_resize(self.bufferViews, _al);
+        for(var _i = 0; _i < _al; _i++) {
+            if(typeof(json_array[_i]) == "struct") {
+                self.bufferViews[_i] = new pdxGLTFbufferView();
+                self.bufferViews[_i].process_json(json_array[_i]);
+            } else {
+                self.parse_error += "glTF bufferView is not a struct - got " + typeof(json_array[_i]) + "\n";
+            }
+        }
+    }
+    
+    static process_json_samplers = function(json_array) {
+        var _al = array_length(json_array);
+        array_resize(self.samplers, _al);
+        for(var _i = 0; _i < _al; _i++) {
+            if(typeof(json_array[_i]) == "struct") {
+                self.samplers[_i] = new pdxGLTFsampler();
+                self.samplers[_i].process_json(json_array[_i]);
+            } else {
+                self.parse_error += "glTF sampler is not a struct - got " + typeof(json_array[_i]) + "\n";
+            }
+        }
+    }
+    
+    static process_json = function(json_struct) {
+        struct_foreach(json_struct, function(_name, _value) {
+          show_debug_message("Type of " + string(_name) + " = " + typeof( _value) );
+            if(_name == "asset") {
+                if(typeof( _value) == "struct") {
+                    self.asset.process_json(_value);
+                } else {
+                    self.parse_error += "glTF asset is not a struct - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "extensionsUsed") {
+                if(typeof( _value) == "array") {
+                    self.process_json_array(self.extensionsUsed, _value);
+                } else {
+                    self.parse_error += "glTF extensionsUsed is not an array - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "scene") {
+                if(typeof( _value) == "number") {
+                    self.scene = _value;
+                } else {
+                    self.parse_error += "glTF scene is not a number - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "scenes") {
+                if(typeof( _value) == "array") {
+                    process_json_scenes(_value);
+                } else {
+                    self.parse_error += "glTF scenes is not an array - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "nodes") {
+                if(typeof( _value) == "array") {
+                    process_json_nodes(_value);
+                } else {
+                    self.parse_error += "glTF nodes is not an array - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "materials") {
+                if(typeof( _value) == "array") {
+                    process_json_materials(_value);
+                } else {
+                    self.parse_error += "glTF materials is not an array - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "meshes") {
+                if(typeof( _value) == "array") {
+                    process_json_meshes(_value);
+                } else {
+                    self.parse_error += "glTF meshes is not an array - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "textures") {
+                if(typeof( _value) == "array") {
+                    process_json_textures(_value);
+                } else {
+                    self.parse_error += "glTF textures is not an array - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "images") {
+                if(typeof( _value) == "array") {
+                    process_json_images(_value);
+                } else {
+                    self.parse_error += "glTF images is not an array - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "accessors") {
+                if(typeof( _value) == "array") {
+                    process_json_accessors(_value);
+                } else {
+                    self.parse_error += "glTF accessors is not an array - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "bufferViews") {
+                if(typeof( _value) == "array") {
+                    process_json_bufferViews(_value);
+                } else {
+                    self.parse_error += "glTF bufferViews is not an array - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "samplers") {
+                if(typeof( _value) == "array") {
+                    process_json_samplers(_value);
+                } else {
+                    self.parse_error += "glTF samplers is not an array - got " + typeof(_value) + "\n";
+                }
+            } else {
+            //    show_debug_message($"{_name}: {_value}");
+            }
+        });
+    }
+}
+
+function pdxGLB(): pdxGLTFBase() constructor {
+    static read = function() {
+        var _buffer = buffer_create(0, buffer_grow, 1);
+        buffer_load_ext(_buffer, self.filename, 0);
+        var _bsize = buffer_get_size(_buffer);
+        if(_bsize > 12) {
+            var _magic = buffer_read(_buffer, buffer_u32);
+            var _version = buffer_read(_buffer, buffer_u32); 
+            var _length = buffer_read(_buffer, buffer_u32);
+            if(_magic <> 0x46546C67) {
+                self.error += "glTF magic wrong\n";
+                return false;
+            }
+            if(_version <> 2) {
+                self.error += "glTF version wrong\n";
+                return false;
+            }
+            if(_length <> _bsize) {
+                self.error += "glTF length wrong\n";
+                return false;
+            }
+            
+            while((buffer_tell(_buffer) + 8) < _bsize) {
+                var _chunk_length = buffer_read(_buffer, buffer_u32);
+                var _chunk_type = buffer_read(_buffer, buffer_u32);
+                if((buffer_tell(_buffer) + _chunk_length) > _bsize) {
+                    self.error = "glTF buffer read overflow";
+                    return false;
+                }
+                switch(_chunk_type) {
+                    case glbChunk.JSON:
+                        var _tempbuf1 = buffer_create(_chunk_length, buffer_fixed, 1);
+                        buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, _tempbuf1, 0);
+                        var _json_txt = buffer_read(_tempbuf1, buffer_string);
+                        self.json = json_parse(_json_txt);
+                        self.process_json(self.json);                    
+                        //show_debug_message(_json_txt);
+                        buffer_seek(_buffer, buffer_seek_relative, _chunk_length);
+                        buffer_delete(_tempbuf1);
+                        
+                        break;
+                    case glbChunk.BIN:
+                        var _tempbuf2 = buffer_create(_chunk_length, buffer_fixed, 1);
+                        buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, _tempbuf2, 0);
+                        // Do stuff with tempobuf2
+                        if(self.filename == working_directory + "world.glb") {
+                            var _img_buf = buffer_create(1337486, buffer_fixed, 1);
+                            buffer_copy(_tempbuf2, 69248, 1337486, _img_buf, 0);
+                            var _sprite_data = {
+                                sprites : 
+                                {        
+                                    world : 
+                                    {
+                                        width : 1024,
+                                        height : 1024,
+                                        frames :
+                                        [ 
+                                            { x : 0, y : 0 }
+                                        ],
+                                    }}};
+                            texturegroup_add("tex_world", _img_buf, _sprite_data);
+                            // buffer_delete(_img_buf);
+                        }
+                        buffer_seek(_buffer, buffer_seek_relative, _chunk_length);
+                        buffer_delete(_tempbuf2);
+                        self.bincount++;
+                        break;
+                    default:
+                        buffer_seek(_buffer, buffer_seek_relative, _chunk_length);
+                        show_debug_message("Default case");
+                        break;
+                }
+            }
+        
+//            var _chunk_length = buffer_read(_buffer, buffer_u32);
+
+            
+        }
+        buffer_delete(_buffer);
+        
+        return true;
+    }
+    
+}
