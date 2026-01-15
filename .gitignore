@@ -15,7 +15,9 @@ ehthumbs_vista.db
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
  
-datafiles/
+datafiles/c++/
+datafiles/gltf/
+datafiles/glb/
  
 # Windows Installer files
 *.cab

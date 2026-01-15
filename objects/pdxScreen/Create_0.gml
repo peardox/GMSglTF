@@ -9,11 +9,11 @@ amodelok = false;
 sprites = undefined;
 
 amodel = new pdxGLB();
-var _fn = "textured_1k_cube.glb";
+var _fn = "/glb/textured_1k_cube.glb";
 /*
-_fn = "basic_cube.glb";
-_fn = "cube_pyramid.glb";
-_fn = "world.glb";
+_fn = "/glb/basic_cube.glb";
+_fn = "/glb/cube_pyramid.glb";
+_fn = "/glb/world.glb";
  */
 if(amodel.open(working_directory + _fn)) {
     amodel.read();
