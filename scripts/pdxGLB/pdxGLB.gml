@@ -1,15 +1,4 @@
-function pdxModelFile() constructor {
-    filename = "";
-    error = "";
-
-    static open = function(afile) {
-        if(file_exists(afile)) {
-            self.filename = afile;
-            return true;            
-        }
-        return false;
-    }
-}
+pdxGltfSpecificationVersion = "2.0.1";
 
 enum glbChunk {
     JSON = 0x4E4F534A,
@@ -25,7 +14,20 @@ enum glbComponentType {
     float   = 5126    //    float           Signed              32
 }
 
-function pdxGLTFparems() constructor {
+function pdxModelFile() constructor {
+    filename = "";
+    error = "";
+
+    static open = function(afile) {
+        if(file_exists(afile)) {
+            self.filename = afile;
+            return true;            
+        }
+        return false;
+    }
+}
+
+function pdxGLTFparems() : ErrorStruct() constructor {
     static process_json = function(json_struct) {
         struct_foreach(json_struct, function(_name, _value) {
             self[$ _name] = _value;
@@ -35,6 +37,24 @@ function pdxGLTFparems() constructor {
 
 function pdxGLTFasset(): pdxGLTFparems() constructor {
     self.version = "";
+
+    static validate = function() {
+        var rval = true;
+        // Required glTF param, always validate
+        if(global.pdxGltfSpecificationVersion <= self.version) {
+            self.add_error("Unsupported GlTF version (requested version specifies " + string(self.version) + " while we support " + string(global.pdxGltfSpecificationVersion) + ")");
+            rval = false;
+        }
+        // Optional glTF param, if present validate
+        if(struct_exists(self, "minVerion")) {
+            if(global.pdxGltfSpecificationVersion > self.minVersion) {
+                self.add_error("Unsupported GlTF MINIMUM version (minVersion specifies " + string(self.minVersion) + " while we support " + string(global.pdxGltfSpecificationVersion) + ")");
+                rval = false;
+            }
+        }
+        
+        return rval;
+    }
 }
 
 function pdxGLTFscene(): pdxGLTFparems() constructor {
@@ -67,15 +87,23 @@ function pdxGLTFsampler(): pdxGLTFparems() constructor {
 function pdxGLTFbuffer(): pdxGLTFparems() constructor {
 }
 
+function pdxGLTFanimation(): pdxGLTFparems() constructor {
+}
+
+function pdxGLTFskin(): pdxGLTFparems() constructor {
+}
+
 
 
 
 function pdxGLTFBase(): pdxModelFile() constructor {
     self.json = "";
+    self.error = "";
     self.parse_error = "";
     self.asset = new pdxGLTFasset();
+    self.extensionsRequired = array_create(0);
     self.extensionsUsed = array_create(0);
-    self.scene = 0;
+    self.scene = NaN;
     self.scenes = array_create(0);
     self.nodes = array_create(0);
     self.materials = array_create(0);
@@ -86,6 +114,10 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     self.bufferViews = array_create(0); 
     self.samplers = array_create(0); 
     self.buffers = array_create(0); 
+    self.animations = array_create(0);
+    self.skins = array_create(0);
+    
+    self.images = array_create(0);
 
     self.bincount = 0;
    
@@ -214,6 +246,45 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         }
     }
     
+    static process_json_buffers = function(json_array) {
+        var _al = array_length(json_array);
+        array_resize(self.buffers, _al);
+        for(var _i = 0; _i < _al; _i++) {
+            if(typeof(json_array[_i]) == "struct") {
+                self.buffers[_i] = new pdxGLTFbuffer();
+                self.buffers[_i].process_json(json_array[_i]);
+            } else {
+                self.parse_error += "glTF buffer is not a struct - got " + typeof(json_array[_i]) + "\n";
+            }
+        }
+    }
+    
+    static process_json_animations = function(json_array) {
+        var _al = array_length(json_array);
+        array_resize(self.animations, _al);
+        for(var _i = 0; _i < _al; _i++) {
+            if(typeof(json_array[_i]) == "struct") {
+                self.animations[_i] = new pdxGLTFanimation();
+                self.animations[_i].process_json(json_array[_i]);
+            } else {
+                self.parse_error += "glTF animation is not a struct - got " + typeof(json_array[_i]) + "\n";
+            }
+        }
+    }
+    
+    static process_json_skins = function(json_array) {
+        var _al = array_length(json_array);
+        array_resize(self.skins, _al);
+        for(var _i = 0; _i < _al; _i++) {
+            if(typeof(json_array[_i]) == "struct") {
+                self.skins[_i] = new pdxGLTFskin();
+                self.skins[_i].process_json(json_array[_i]);
+            } else {
+                self.parse_error += "glTF skin is not a struct - got " + typeof(json_array[_i]) + "\n";
+            }
+        }
+    }
+    
     static process_json = function(json_struct) {
         struct_foreach(json_struct, function(_name, _value) {
           show_debug_message("Type of " + string(_name) + " = " + typeof( _value) );
@@ -222,6 +293,12 @@ function pdxGLTFBase(): pdxModelFile() constructor {
                     self.asset.process_json(_value);
                 } else {
                     self.parse_error += "glTF asset is not a struct - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "extensionsRequired") {
+                if(typeof( _value) == "array") {
+                    self.process_json_array(self.extensionsRequired, _value);
+                } else {
+                    self.parse_error += "glTF extensionsRequired is not an array - got " + typeof(_value) + "\n";
                 }
             } else if(_name == "extensionsUsed") {
                 if(typeof( _value) == "array") {
@@ -289,7 +366,26 @@ function pdxGLTFBase(): pdxModelFile() constructor {
                 } else {
                     self.parse_error += "glTF samplers is not an array - got " + typeof(_value) + "\n";
                 }
+            } else if(_name == "buffers") {
+                if(typeof( _value) == "array") {
+                    process_json_buffers(_value);
+                } else {
+                    self.parse_error += "glTF buffers is not an array - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "animations") {
+                if(typeof( _value) == "array") {
+                    process_json_animations(_value);
+                } else {
+                    self.parse_error += "glTF animations is not an array - got " + typeof(_value) + "\n";
+                }
+            } else if(_name == "skins") {
+                if(typeof( _value) == "array") {
+                    process_json_skins(_value);
+                } else {
+                    self.parse_error += "glTF skins is not an array - got " + typeof(_value) + "\n";
+                }
             } else {
+                self.parse_error += "Unhandled glTF member " + string(_name) + "\n";
             //    show_debug_message($"{_name}: {_value}");
             }
         });
@@ -322,7 +418,7 @@ function pdxGLB(): pdxGLTFBase() constructor {
                 var _chunk_length = buffer_read(_buffer, buffer_u32);
                 var _chunk_type = buffer_read(_buffer, buffer_u32);
                 if((buffer_tell(_buffer) + _chunk_length) > _bsize) {
-                    self.error = "glTF buffer read overflow";
+                    self.error = "glTF buffer read overflow\n";
                     return false;
                 }
                 switch(_chunk_type) {
@@ -332,7 +428,7 @@ function pdxGLB(): pdxGLTFBase() constructor {
                         var _json_txt = buffer_read(_tempbuf1, buffer_string);
                         self.json = json_parse(_json_txt);
                         self.process_json(self.json);                    
-                        //show_debug_message(_json_txt);
+                        show_debug_message(_json_txt);
                         buffer_seek(_buffer, buffer_seek_relative, _chunk_length);
                         buffer_delete(_tempbuf1);
                         
@@ -341,7 +437,12 @@ function pdxGLB(): pdxGLTFBase() constructor {
                         var _tempbuf2 = buffer_create(_chunk_length, buffer_fixed, 1);
                         buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, _tempbuf2, 0);
                         // Do stuff with tempobuf2
-                        if(self.filename == working_directory + "world.glb") {
+                        if(self.filename == working_directory + "/glb/world.glb") {
+                            var _al = array_length(self.images);
+                            array_resize(self.images, _al + 1)
+                            self.images[_al] = new pdxImage();
+                            self.images[_al].load_from_buffer(_tempbuf2, 69248, 1337486, "tex_world");
+                            /*
                             var _img_buf = buffer_create(1337486, buffer_fixed, 1);
                             buffer_copy(_tempbuf2, 69248, 1337486, _img_buf, 0);
                             var _sprite_data = {
@@ -357,7 +458,10 @@ function pdxGLB(): pdxGLTFBase() constructor {
                                         ],
                                     }}};
                             texturegroup_add("tex_world", _img_buf, _sprite_data);
+                            texturegroup_load("tex_world");
+                            self.error += "texture = " + string(texturegroup_get_status("tex_world"));
                             // buffer_delete(_img_buf);
+                            */
                         }
                         buffer_seek(_buffer, buffer_seek_relative, _chunk_length);
                         buffer_delete(_tempbuf2);
@@ -375,7 +479,8 @@ function pdxGLB(): pdxGLTFBase() constructor {
             
         }
         buffer_delete(_buffer);
-        
+        self.asset.validate();
+                
         return true;
     }
     
