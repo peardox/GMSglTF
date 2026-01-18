@@ -3,7 +3,8 @@ nfps++;
 
 draw_set_colour(c_yellow);
 draw_set_halign(fa_right);
-draw_text((virtual_width * virtual_scale) - 20,  20, "FPS : " + string(fps) + " : RealFPS : " + string(tfps/nfps));
+draw_text((virtual_width * virtual_scale) - 20,  20, "Load : " + string_format(amodel.load_time/1000000, 1, 6) + ", Read : " + string_format(amodel.read_time/1000000, 1, 6) + ", FPS : " + string(fps) + ", RealFPS : " + string(tfps/nfps));
+
 draw_set_colour(c_white);
 draw_set_halign(fa_left);
 draw_text(20, 40, "LookAt : " + string(lookat_x) + " x "  + string(lookat_y));

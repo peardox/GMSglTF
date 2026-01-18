@@ -99,6 +99,8 @@ function pdxGLTFskin(): pdxGLTFparems() constructor {
 function pdxGLTFBase(): pdxModelFile() constructor {
     self.json = "";
     self.error = "";
+    self.load_time = 0;
+    self.read_time = 0;
     self.parse_error = "";
     self.asset = new pdxGLTFasset();
     self.extensionsRequired = array_create(0);
@@ -394,9 +396,11 @@ function pdxGLTFBase(): pdxModelFile() constructor {
 
 function pdxGLB(): pdxGLTFBase() constructor {
     static read = function() {
+        self.load_time = get_timer();
         var _buffer = buffer_create(0, buffer_grow, 1);
         buffer_load_ext(_buffer, self.filename, 0);
         var _bsize = buffer_get_size(_buffer);
+        self.read_time = get_timer() - self.load_time;
         if(_bsize > 12) {
             var _magic = buffer_read(_buffer, buffer_u32);
             var _version = buffer_read(_buffer, buffer_u32); 
@@ -481,6 +485,8 @@ function pdxGLB(): pdxGLTFBase() constructor {
         buffer_delete(_buffer);
         self.asset.validate();
                 
+        self.load_time = get_timer() - self.load_time;
+        
         return true;
     }
     
