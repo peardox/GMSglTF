@@ -43,7 +43,10 @@ if(amodelok && show_stats) {
     }
     draw_text(20, 380, "skins : "       + string(array_length(amodel.skins)             ) + " : " + string(amodel.skins)             );
 
-    draw_text(20, 420, "error : "       + string(amodel.error)             );
-    draw_text(20, 440, "parse error : " + string(amodel.parse_error)       );
-
+    if(amodel.has_errors()) {
+        draw_text(20, 420, "error : " + string(amodel.error));
+    }
+    if(global.pdxGlobalGltfErrorFlag) {
+        draw_text(20, 420, "*** Some gltf errors ***");
+    }
 }

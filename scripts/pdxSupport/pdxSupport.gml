@@ -1,6 +1,7 @@
 pdxLastImageIndex = 0;
 pdxImageIndexDigits = 3;
 pdxThrowNotReturn = true;
+pdxGlobalGltfErrorFlag = false;
 
 function nextsequence(path, base, ext, digits = 3) {
     var _i = 0
@@ -28,8 +29,20 @@ function ErrorStruct() constructor {
         }        
         if(!struct_exists(self, "error")) {
             self.error = "";
+            global.pdxGlobalGltfErrorFlag = true;
         }
         self.error += string(errmsg) + "\n";
+    }
+    
+    static critical = function(errmsg) {
+        throw(errmsg);                
+    }
+    
+    static has_errors = function() {
+        if(struct_exists(self, "error")) {
+            return true;
+        }
+       return false;
     }
 }
 

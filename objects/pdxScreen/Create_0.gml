@@ -10,7 +10,8 @@ sprites = undefined;
 tfps = 0;
 nfps = 0;
 show_stats = true;
-amodel = new pdxGLB();
+// amodel = new pdxGLB();
+//amodel = new pdxGLTF();
 var _fn = "glb/textured_1k_cube.glb";
 /*
 _fn = "glb/basic_cube.glb";
@@ -24,7 +25,12 @@ _fn = "glb/Skeleton_Warrior.glb";
 _fn = "glb/Skeleton_Warrior_Free.glb";
 */
 _fn = "glb/ShadedCube.glb";
-if(amodel.open(working_directory + _fn)) {
+_fn = "glb/basic_cube.glb";
+//_fn = "gltf/Rotator.gltf";
+//_fn = "glb/rotate.glb";
+amodel = open_model(working_directory + _fn);
+if(amodel) {
+// if(amodel.open(working_directory + _fn)) {
     amodel.read();
     amodelok = true;
 }
