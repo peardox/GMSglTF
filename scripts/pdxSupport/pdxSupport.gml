@@ -87,3 +87,38 @@ function pdxImage() : ErrorStruct() constructor {
     }
 
 }
+
+function open_model(filename) {
+    var _rval = false;
+    var _ext = "";
+    var _amodel = undefined;
+    
+    if(file_exists(filename)) {
+        var _full_file_parts = string_split_ext(string_trim(filename), ["/","\\"], true);
+        var _ffpn = array_length(_full_file_parts);
+        if(_ffpn > 1) {
+            var _file_parts = string_split(string_trim(_full_file_parts[_ffpn - 1]), ".", true);
+            var _fpn = array_length(_file_parts);
+            if(_fpn > 1) {
+                _ext = string_lower(_file_parts[_fpn - 1]);
+                if(_ext == "glb") {
+                    _amodel = new pdxGLB();
+                    if(_amodel.open(filename)) {
+                        _rval = _amodel;
+                    } else {
+                        delete(_amodel);
+                    }
+                } else if(_ext == "gltf") {
+                    _amodel = new pdxGLTF();
+                    if(_amodel.open(filename)) {
+                        _rval = _amodel;
+                    } else {
+                        delete(_amodel);
+                    }
+                }
+            }
+        }
+    }
+    
+    return _rval;
+}

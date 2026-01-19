@@ -24,6 +24,11 @@ enum glbMeshPrimativeMode {
     TRIANGLE_FAN
 }
 
+enum glbBufferViewTarget {
+    ARRAY_BUFFER = 34962,
+    ELEMENT_ARRAY_BUFFER = 34963
+}
+
 function pdxModelFile()  : ErrorStruct() constructor {
     filename = "";
 
@@ -187,27 +192,26 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     self.json = "";
     self.load_time = 0;
     self.read_time = 0;
-    self.asset = new pdxGLTFasset();
-    self.extensionsRequired = array_create(0);
-    self.extensionsUsed = array_create(0);
-    self.scene = NaN;
-    self.scenes = array_create(0);
-    self.nodes = array_create(0);
-    self.materials = array_create(0);
-    self.meshes = array_create(0);
-    self.textures = array_create(0); 
-    self.images = array_create(0); 
-    self.accessors = array_create(0); 
-    self.bufferViews = array_create(0); 
-    self.samplers = array_create(0); 
-    self.buffers = array_create(0); 
-    self.animations = array_create(0);
-    self.skins = array_create(0);
-    
-    self.images = array_create(0);
+    self.asset = new pdxGLTFasset();            // 5.17.5
+    self.extensionsRequired = array_create(0);  // 5.17.2
+    self.extensionsUsed = array_create(0);      // 5.17.1
+    self.scene = NaN;                           // 5.17.14
+    self.scenes = array_create(0);              // 5.17.15
+    self.nodes = array_create(0);               // 5.17.12
+    self.materials = array_create(0);           // 5.17.10
+    self.meshes = array_create(0);              // 5.17.11
+    self.textures = array_create(0);            // 5.17.17
+    self.accessors = array_create(0);           // 5.17.3
+    self.bufferViews = array_create(0);         // 5.17.7
+    self.samplers = array_create(0);            // 5.17.13
+    self.buffers = array_create(0);             // 5.17.6
+    self.animations = array_create(0);          // 5.17.4
+    self.skins = array_create(0);               // 5.17.16
+    self.extras = {};                           // 5.17.19
+    self.extensions = {};                       // 5.17.18
+    self.cameras = array_create(0);             // 5.17.8
+    self.images = array_create(0);              // 5.17.9
 
-    self.bincount = 0;
-   
     static process_json_array = function(target, json_array) {
         var _al = array_length(json_array);
         array_resize(target, _al);
@@ -471,6 +475,18 @@ function pdxGLTFBase(): pdxModelFile() constructor {
                 } else {
                     self.add_error("glTF skins is not an array - got " + typeof(_value));
                 }
+            } else if(_name == "extras") {
+                if(typeof( _value) == "struct") {
+                    process_json(_value);
+                } else {
+                    self.add_error("glTF extras is not an struct - got " + typeof(_value));
+                }
+            } else if(_name == "extensions") {
+                if(typeof( _value) == "struct") {
+                    process_json(_value);
+                } else {
+                    self.add_error("glTF extention is not an array - got " + typeof(_value));
+                }
             } else {
                 self.add_error("Unhandled glTF member " + string(_name));
             //    show_debug_message($"{_name}: {_value}");
@@ -483,6 +499,9 @@ function pdxGLTF(): pdxGLTFBase() constructor {
     static read = function() {
         self.load_time = get_timer();
         var _buffer = buffer_create(0, buffer_grow, 1);
+        if(_buffer == -1) {
+            throw("Can't create buffer");
+        }
         buffer_load_ext(_buffer, self.filename, 0);
         var _bsize = buffer_get_size(_buffer);
         self.read_time = get_timer() - self.load_time;
@@ -491,8 +510,8 @@ function pdxGLTF(): pdxGLTFBase() constructor {
             self.json = json_parse(_json_txt);
             self.process_json(self.json);                    
             show_debug_message(_json_txt);
-            buffer_delete(_buffer);
         }
+        buffer_delete(_buffer);
     }
 } 
 
@@ -500,6 +519,9 @@ function pdxGLB(): pdxGLTFBase() constructor {
     static read = function() {
         self.load_time = get_timer();
         var _buffer = buffer_create(0, buffer_grow, 1);
+        if(_buffer == -1) {
+            throw("Can't create buffer");
+        }
         buffer_load_ext(_buffer, self.filename, 0);
         var _bsize = buffer_get_size(_buffer);
         self.read_time = get_timer() - self.load_time;
@@ -571,17 +593,13 @@ function pdxGLB(): pdxGLTFBase() constructor {
                         }
                         buffer_seek(_buffer, buffer_seek_relative, _chunk_length);
                         buffer_delete(_tempbuf2);
-                        self.bincount++;
                         break;
                     default:
                         buffer_seek(_buffer, buffer_seek_relative, _chunk_length);
-                        show_debug_message("Default case");
+                        self.critical("Unhandled Binary Chunk");
                         break;
                 }
             }
-        
-//            var _chunk_length = buffer_read(_buffer, buffer_u32);
-
             
         }
         buffer_delete(_buffer);
@@ -594,37 +612,3 @@ function pdxGLB(): pdxGLTFBase() constructor {
     
 }
 
-function open_model(filename) {
-    var _rval = false;
-    var _ext = "";
-    var _amodel = undefined;
-    
-    if(file_exists(filename)) {
-        var _full_file_parts = string_split_ext(string_trim(filename), ["/","\\"], true);
-        var _ffpn = array_length(_full_file_parts);
-        if(_ffpn > 1) {
-            var _file_parts = string_split(string_trim(_full_file_parts[_ffpn - 1]), ".", true);
-            var _fpn = array_length(_file_parts);
-            if(_fpn > 1) {
-                _ext = string_lower(_file_parts[_fpn - 1]);
-                if(_ext == "glb") {
-                    _amodel = new pdxGLB();
-                    if(_amodel.open(filename)) {
-                        _rval = _amodel;
-                    } else {
-                        delete(_amodel);
-                    }
-                } else if(_ext == "gltf") {
-                    _amodel = new pdxGLTF();
-                    if(_amodel.open(filename)) {
-                        _rval = _amodel;
-                    } else {
-                        delete(_amodel);
-                    }
-                }
-            }
-        }
-    }
-    
-    return _rval;
-}
