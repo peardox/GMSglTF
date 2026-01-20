@@ -25,13 +25,15 @@ _fn = "glb/Skeleton_Warrior.glb";
 _fn = "glb/Skeleton_Warrior_Free.glb";
 */
 _fn = "glb/ShadedCube.glb";
-_fn = "glb/basic_cube.glb";
 _fn = "gltf/basic_cube.gltf";
 _fn = "glb\\door-rotate-square-a.glb";
 _fn = "glb/assetforge-door.glb";
 _fn = "glb/watchtower.glb";
 //_fn = "gltf/Rotator.gltf";
 //_fn = "glb/rotate.glb";
+_fn = "glb/basic_cube.glb";
+_fn = "glb/world.glb";
+
 amodel = open_model(working_directory + _fn);
 if(amodel) {
 // if(amodel.open(working_directory + _fn)) {

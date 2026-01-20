@@ -180,6 +180,7 @@ function pdxGLTFsampler(): pdxGLTFparems() constructor {
 }
 
 function pdxGLTFbuffer(): pdxGLTFparems() constructor {
+    self.data = undefined;
 }
 
 function pdxGLTFanimation(): pdxGLTFparems() constructor {
@@ -493,6 +494,22 @@ function pdxGLTFBase(): pdxModelFile() constructor {
             }
         });
     }
+    
+    static free = function() {
+        /*
+        var _il = array_length(self.images);
+        for(var _i = 0; _i < _il; _i++) {
+            self.images[_il].free();
+        }
+        */ 
+        var _bl = array_length(self.buffers);
+        for(var _i = 0; _i < _bl; _i++) {
+            if(buffer_exists(self.buffers[_i].data)) {
+                buffer_delete(self.buffers[_i].data);
+                self.buffers[_i].data = undefined;
+            }
+        }
+    }
 }
 
 function pdxGLTF(): pdxGLTFBase() constructor {
@@ -562,14 +579,17 @@ function pdxGLB(): pdxGLTFBase() constructor {
                         
                         break;
                     case glbChunk.BIN:
-                        var _tempbuf2 = buffer_create(_chunk_length, buffer_fixed, 1);
-                        buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, _tempbuf2, 0);
+                        if(array_length(self.buffers) <> 1) {
+                            self.critical("GLB has multiple buffer entries");
+                        }
+                        self.buffers[0].data = buffer_create(_chunk_length, buffer_fixed, 1);
+                        buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, self.buffers[0].data, 0);
                         // Do stuff with tempobuf2
                         if(self.filename == working_directory + "/glb/world.glb") {
                             var _al = array_length(self.images);
                             array_resize(self.images, _al + 1)
                             self.images[_al] = new pdxImage();
-                            self.images[_al].load_from_buffer(_tempbuf2, 69248, 1337486, "tex_world");
+                            self.images[_al].load_from_buffer(self.buffers[0].data, 69248, 1337486, "tex_world");
                             /*
                             var _img_buf = buffer_create(1337486, buffer_fixed, 1);
                             buffer_copy(_tempbuf2, 69248, 1337486, _img_buf, 0);
@@ -592,7 +612,6 @@ function pdxGLB(): pdxGLTFBase() constructor {
                             */
                         }
                         buffer_seek(_buffer, buffer_seek_relative, _chunk_length);
-                        buffer_delete(_tempbuf2);
                         break;
                     default:
                         buffer_seek(_buffer, buffer_seek_relative, _chunk_length);

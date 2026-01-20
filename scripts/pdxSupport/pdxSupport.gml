@@ -57,6 +57,16 @@ function pdxImage() : ErrorStruct() constructor {
     self.sprite_name = undefined;
     self.sprite_size = new pdxImageDimensions(1024, 1024);
     
+    static free = function() {
+        if(buffer_exists(self.texturegroup_name)) {
+            texturegroup_unload(self.texturegroup_name);
+        }
+        if(buffer_exists(self.buffer)) {
+            buffer_delete(self.buffer);
+            self.buffers = undefined;
+        }
+    }
+    
     static load_from_buffer = function(inbuf, buffer_offset, buffer_length, texturegoup) {
         // Before we do anything check the buffer is a buffer and it has spave for the image to read
         if(!buffer_exists(inbuf)) {
@@ -80,8 +90,9 @@ function pdxImage() : ErrorStruct() constructor {
         buffer_copy(inbuf, buffer_offset, buffer_length, self.buffer, 0);
         var _sprite_data = { sprites : {}};
         _sprite_data.sprites[$ self.sprite_name] = { width : self.sprite_size.width, height : self.sprite_size.height, frames : [  { x : 0, y : 0 } ] };
-        texturegroup_add(texturegoup, self.buffer, _sprite_data);
-        texturegroup_load(texturegoup);
+        self.texturegroup_name = texturegoup;
+        texturegroup_add(self.texturegroup_name, self.buffer, _sprite_data);
+        texturegroup_load(self.texturegroup_name);
         
         return true;
     }
