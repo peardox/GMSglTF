@@ -31,7 +31,7 @@ _fn = "gltf/Rotator.gltf";
 _fn = "glb/rotate.glb";
 */
 _fn = "glb/basic_cube.glb";
-//_fn = "gltf/basic_cube.gltf";
+_fn = "gltf/basic_cube.gltf";
 amodel = open_model(working_directory + _fn);
 if(amodel) {
 // if(amodel.open(working_directory + _fn)) {

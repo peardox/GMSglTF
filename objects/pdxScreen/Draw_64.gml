@@ -55,3 +55,4 @@ if(amodelok && show_stats) {
         draw_text(20, 420, "*** Some gltf errors ***");
     }
 }
+

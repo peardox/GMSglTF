@@ -31,9 +31,11 @@ enum glbBufferViewTarget {
 
 function pdxModelFile()  : ErrorStruct() constructor {
     filename = "";
+    filepath = "";
 
-    static open = function(afile) {
-        if(file_exists(afile)) {
+    static open = function(apath, afile) {
+        if(file_exists(apath + afile)) {
+            self.filepath = apath;
             self.filename = afile;
             return true;            
         }
@@ -499,13 +501,13 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         var _al = array_length(self.buffers);
         for(var _i = 0; _i < _al; _i++) {
             if(struct_exists(self.buffers[_i], "uri")) {
-                if(!file_exists(self.buffers[_i].uri)) {
-                    self.critical("Exsternal data buffer bot found : " + self.buffers[_i].uri);
+                if(!file_exists(self.filepath + self.buffers[_i].uri)) {
+                    self.critical("Exsternal data buffer bot found : " + self.filepath + self.buffers[_i].uri);
                 }
                 if(self.buffers[_i].data==undefined) {
                     if(struct_exists(self.buffers[_i], "byteLength")) {
                         self.buffers[_i].data = buffer_create(self.buffers[_i].byteLength, buffer_grow, 1);
-                        buffer_load_ext(self.buffers[_i].data, self.buffers[_i].uri, 0);
+                        buffer_load_ext(self.buffers[_i].data, self.filepath + self.buffers[_i].uri, 0);
                         
                     }
                 } else {
@@ -539,7 +541,7 @@ function pdxGLTF(): pdxGLTFBase() constructor {
         if(_buffer == -1) {
             throw("Can't create buffer");
         }
-        buffer_load_ext(_buffer, self.filename, 0);
+        buffer_load_ext(_buffer, self.filepath + self.filename, 0);
         var _bsize = buffer_get_size(_buffer);
         self.read_time = get_timer() - self.load_time;
         if(_bsize > 0) {
@@ -561,7 +563,7 @@ function pdxGLB(): pdxGLTFBase() constructor {
         if(_buffer == -1) {
             throw("Can't create buffer");
         }
-        buffer_load_ext(_buffer, self.filename, 0);
+        buffer_load_ext(_buffer, self.filepath + self.filename, 0);
         var _bsize = buffer_get_size(_buffer);
         self.read_time = get_timer() - self.load_time;
         if(_bsize > 12) {
@@ -607,7 +609,7 @@ function pdxGLB(): pdxGLTFBase() constructor {
                         self.buffers[0].data = buffer_create(_chunk_length, buffer_fixed, 1);
                         buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, self.buffers[0].data, 0);
                         // Do stuff with tempobuf2
-                        if(self.filename == working_directory + "/glb/world.glb") {
+                        if(self.filename == "world.glb") {
                             var _al = array_length(self.images);
                             array_resize(self.images, _al + 1)
                             self.images[_al] = new pdxImage();

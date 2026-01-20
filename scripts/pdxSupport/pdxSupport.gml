@@ -108,37 +108,64 @@ function pdxImage() : ErrorStruct() constructor {
 
 }
 
+function get_file_parts(filename, delim = "/") {
+    var rval = false;
+    var parts = {
+        path: "",
+        name: "",
+        extension: ""
+    };
+        
+    if(file_exists(filename)) {
+        var _trailing_path_count = 0;
+        if(string_ends_with(filename, "/") || string_ends_with(filename, "\\")) {
+            _trailing_path_count = 1;
+        }
+        var _full_file_parts = string_split_ext(string_trim(filename), ["/","\\"], true);
+        var _ffp_count = array_length(_full_file_parts);
+        if(_ffp_count > 0) {
+            for(var _i = 0; _i < (_ffp_count + _trailing_path_count - 1); _i++) {
+                parts.path += _full_file_parts[_i] + delim;
+            }
+            if(_trailing_path_count == 0) {
+                parts.name = string_trim(_full_file_parts[_ffp_count - 1]);    
+            }
+            
+            var _file_parts = string_split(string_trim(_full_file_parts[_ffp_count - 1]), ".", true);
+            var _fp_count = array_length(_file_parts);
+            if(_fp_count > 1) {
+                parts.extension = string_lower(_file_parts[_fp_count - 1]);
+            }
+        rval = parts;        
+        }
+    }
+    
+    return rval;
+}
+
 function open_model(filename) {
     var _rval = false;
-    var _ext = "";
     var _amodel = undefined;
-    
-    if(file_exists(filename)) {
-        var _full_file_parts = string_split_ext(string_trim(filename), ["/","\\"], true);
-        var _ffpn = array_length(_full_file_parts);
-        if(_ffpn > 1) {
-            var _file_parts = string_split(string_trim(_full_file_parts[_ffpn - 1]), ".", true);
-            var _fpn = array_length(_file_parts);
-            if(_fpn > 1) {
-                _ext = string_lower(_file_parts[_fpn - 1]);
-                if(_ext == "glb") {
-                    _amodel = new pdxGLB();
-                    if(_amodel.open(filename)) {
-                        _rval = _amodel;
-                    } else {
-                        delete(_amodel);
-                    }
-                } else if(_ext == "gltf") {
-                    _amodel = new pdxGLTF();
-                    if(_amodel.open(filename)) {
-                        _rval = _amodel;
-                    } else {
-                        delete(_amodel);
-                    }
-                }
+    var _parts = get_file_parts(filename);
+        
+    if(_parts && _parts.extension!="") {
+        if(_parts.extension == "glb") {
+            _amodel = new pdxGLB();
+            if(_amodel.open(_parts.path, _parts.name)) {
+                _rval = _amodel;
+            } else {
+                delete(_amodel);
+            }
+        } else if(_parts.extension == "gltf") {
+            _amodel = new pdxGLTF();
+            if(_amodel.open(_parts.path, _parts.name)) {
+                _rval = _amodel;
+            } else {
+                delete(_amodel);
             }
         }
     }
+
     
     return _rval;
 }
