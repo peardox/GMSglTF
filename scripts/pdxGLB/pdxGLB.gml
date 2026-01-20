@@ -495,6 +495,26 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         });
     }
     
+    static load_external_buffers = function() {
+        var _al = array_length(self.buffers);
+        for(var _i = 0; _i < _al; _i++) {
+            if(struct_exists(self.buffers[_i], "uri")) {
+                if(!file_exists(self.buffers[_i].uri)) {
+                    self.critical("Exsternal data buffer bot found : " + self.buffers[_i].uri);
+                }
+                if(self.buffers[_i].data==undefined) {
+                    if(struct_exists(self.buffers[_i], "byteLength")) {
+                        self.buffers[_i].data = buffer_create(self.buffers[_i].byteLength, buffer_grow, 1);
+                        buffer_load_ext(self.buffers[_i].data, self.buffers[_i].uri, 0);
+                        
+                    }
+                } else {
+                    self.add_warning("Buffer #" + string(_i) + " already contains data");
+                }
+            }
+        }
+    }
+    
     static free = function() {
         /*
         var _il = array_length(self.images);
@@ -529,6 +549,8 @@ function pdxGLTF(): pdxGLTFBase() constructor {
             show_debug_message(_json_txt);
         }
         buffer_delete(_buffer);
+        
+        self.load_external_buffers();
     }
 } 
 
@@ -622,8 +644,9 @@ function pdxGLB(): pdxGLTFBase() constructor {
             
         }
         buffer_delete(_buffer);
-        self.asset.validate();
-                
+        
+        self.load_external_buffers();
+        
         self.load_time = get_timer() - self.load_time;
         
         return true;

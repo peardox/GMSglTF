@@ -56,7 +56,6 @@
     {"$GMIncludedFile":"","%Name":"YPlus.png","CopyToMask":-1,"filePath":"datafiles/gltf","name":"YPlus.png","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"ZMinus.png","CopyToMask":-1,"filePath":"datafiles/gltf","name":"ZMinus.png","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"ZPlus.png","CopyToMask":-1,"filePath":"datafiles/gltf","name":"ZPlus.png","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
-    {"$GMIncludedFile":"","%Name":"MultiScene.glb","CopyToMask":-1,"filePath":"datafiles","name":"MultiScene.glb","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"README.md","CopyToMask":-1,"filePath":"datafiles","name":"README.md","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
   ],
   "isEcma":false,
