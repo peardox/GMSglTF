@@ -1,0 +1,87 @@
+scene
+
+nodes                       integer [1-*]                   The indices of each root node.                          No
+name                        string                          The user-defined name of this object.                   No
+extensions                  extension                       JSON object with extension-specific objects.            No
+extras                      extras                          Application-specific data.                              No
+
+nodes
+
+camera                      integer                         The index of the camera referenced by this node.        No
+children                    integer [1-*]                   The indices of this node’s children.                    No
+skin                        integer                         The index of the skin referenced by this node.          No
+matrix                      number [16]                     A floating-point 4x4 transformation matrix              No, default: [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]
+mesh                        integer                         The index of the mesh in this node.                     No
+rotation                    number [4]                      The node’s unit quaternion rotation (x, y, z, w)        No, default: [0,0,0,1]
+scale                       number [3]                      The node’s non-uniform scale along x, y, and z          No, default: [1,1,1]
+translation                 number [3]                      The node’s translation along the x, y, and z axes.      No, default: [0,0,0]
+weights                     number [1-*]                    The weights of the instantiated morph target.           No
+name                        string                          The user-defined name of this object.                   No
+extensions                  extension                       JSON object with extension-specific objects.            No
+extras                      extras                          Application-specific data.                              No
+
+mesh
+
+primitives                  mesh.primitive [1-*]            An array of primitives, each defining geometry.         Yes
+weights                     number [1-*]                    Array of weights to be applied to the morph targets.    No
+name                        string                          The user-defined name of this object.                   No
+extensions                  extension                       JSON object with extension-specific objects.            No
+extras                      extras                          Application-specific data.                              No
+
+mesh.primitive
+
+attributes                  object                          A plain JSON object,                                    Yes
+indices                     integer                         The index of the accessor containing vertex indices.    No
+material                    integer                         The index of the material to apply.                     No
+mode                        integer                         The topology type of primitives to render.              No, default: 4
+targets                     object [1-*]                    An array of morph targets.                              No
+extensions                  extension                       JSON object with extension-specific objects.            No
+extras                      extras                          Application-specific data.                              No
+
+material
+
+name                        string                          The user-defined name of this object.                   No
+pbrMetallicRoughness        material.pbrMetallicRoughness   PBR metallic-roughness material model                   No
+normalTexture               material.normalTextureInfo      The tangent space normal texture.                       No
+occlusionTexture            material.occlusionTextureInfo   The occlusion texture.                                  No
+emissiveTexture             textureInfo                     The emissive texture.                                   No
+emissiveFactor              number [3]                      The factors for the emissive color of the material.     No, default: [0,0,0]
+alphaMode                   string                          The alpha rendering mode of the material.               No, default: "OPAQUE"
+alphaCutoff                 number                          The alpha cutoff value of the material.                 No, default: 0.5
+doubleSided                 boolean                         Specifies whether the material is double sided.         No
+extensions                  extension                       JSON object with extension-specific objects.            No
+extras                      extras                          Application-specific data.                              No
+
+material.pbrMetallicRoughness
+
+baseColorFactor             number [4]                      The factors for the base color of the material.         No, default: [1,1,1,1]
+baseColorTexture            textureInfo                     The base color texture.                                 No
+metallicFactor              number                          The factor for the metalness of the material.           No, default: 1
+roughnessFactor             number                          The factor for the roughness of the material.           No, default: 1
+metallicRoughnessTexture    textureInfo                     The metallic-roughness texture.                         No
+extensions                  extension                       JSON object with extension-specific objects.            No
+extras                      extras                          Application-specific data.                              No
+
+material.normalTextureInfo
+
+index                       integer                         The index of the texture.                               Yes
+texCoord                    integer                         The set index of texture’s TEXCOORD attribute           No, default: 0
+scale                       number                          The scalar parameter applied to each normalTex vector   No, default: 1
+extensions                  extension                       JSON object with extension-specific objects.            No
+extras                      extras                          Application-specific data.                              No
+
+material.occlusionTextureInfo
+
+index                       integer                         The index of the texture.                               Yes
+texCoord                    integer                         The set index of texture’s TEXCOORD                     No, default: 0
+strength                    number                          A scalar multiplier for the amount of occlusion.        No, default: 1
+extensions                  extension                       JSON object with extension-specific objects.            No
+extras                      extras                          Application-specific data.                              No
+
+textureInfo
+
+index                       integer                         The index of the texture.                               Yes
+texCoord                    integer                         The set index of texture’s TEXCOORD                     No, default: 0
+extensions                  extension                       JSON object with extension-specific objects.            No
+extras                      extras                          Application-specific data.                              No
+

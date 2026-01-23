@@ -1,8 +1,22 @@
 pdxLastImageIndex = 0;
 pdxImageIndexDigits = 3;
-pdxThrowNotReturn = true;
+pdxThrowNotReturn = false;
 pdxGlobalGltfErrorFlag = false;
 pdxGlobalGltfWarningFlag = false;
+
+function exception_handler(except) {
+    show_debug_message(except);
+}
+
+function init() {
+//    exception_unhandled_handler(exception_handler);
+    var _test = new pdxGltfMeshPrimitive();
+    _test.attributes = 0;
+    _test.validate();
+    show_debug_message(string(_test));
+}
+
+init();
 
 function nextsequence(path, base, ext, digits = 3) {
     var _i = 0
@@ -23,7 +37,7 @@ function nextsequence(path, base, ext, digits = 3) {
     return seq_file;
 }
 
-function ErrorStruct() constructor {
+function pdxException() constructor {
     static add_error = function(errmsg) {
         if(global.pdxThrowNotReturn) {
             throw(errmsg);                
@@ -44,7 +58,12 @@ function ErrorStruct() constructor {
     }
     
     static critical = function(errmsg) {
-        throw(errmsg);                
+        if(show_question(errmsg)) {
+            
+        } else {
+            throw(errmsg);    
+        }
+        
     }
     
     static has_errors = function() {
@@ -60,7 +79,7 @@ function pdxImageDimensions(width = 0, height = 0) constructor {
     self.height = height;
 }
 
-function pdxImage() : ErrorStruct() constructor {
+function pdxImage() : pdxException() constructor {
     self.buffer = undefined;
     self.texturegroup_name = undefined;
     self.sprite_name = undefined;

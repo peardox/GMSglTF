@@ -1,4 +1,5 @@
 pdxGltfSpecificationVersion = "2.0.1";
+pdxGltfShowJson = false;
 
 enum glbChunk {
     JSON = 0x4E4F534A,
@@ -14,7 +15,7 @@ enum glbComponentType {
     float   = 5126    //    float           Signed              32
 }
 
-enum glbMeshPrimativeMode {
+enum glbMeshPrimitiveMode {
     POINTS,
     LINES,
     LINE_LOOP,
@@ -29,7 +30,7 @@ enum glbBufferViewTarget {
     ELEMENT_ARRAY_BUFFER = 34963
 }
 
-function pdxModelFile()  : ErrorStruct() constructor {
+function pdxModelFile() : pdxException() constructor {
     filename = "";
     filepath = "";
 
@@ -43,7 +44,7 @@ function pdxModelFile()  : ErrorStruct() constructor {
     }
 }
 
-function pdxGLTFparems() : ErrorStruct() constructor {
+function pdxGLTFparems() : pdxException() constructor {
     static process_json = function(json_struct) {
         struct_foreach(json_struct, function(_name, _value) {
             self[$ _name] = _value;
@@ -81,10 +82,10 @@ function pdxGLTFnode(): pdxGLTFparems() constructor {
 function pdxGLTFmaterial(): pdxGLTFparems() constructor {
 }
 
-function pdxGLTFmesh_primative(): pdxGLTFparems() constructor {
+function pdxGLTFmesh_primitive(): pdxGLTFparems() constructor {
     // The optional default is triangles, and is usually not in the json so it needs setting
     // This will be overwritten if present in json - typically by a non-triangle mode
-    self.mode = glbMeshPrimativeMode.TRIANGLES;
+    self.mode = glbMeshPrimitiveMode.TRIANGLES;
     
     static process_json = function(json_struct) {
         struct_foreach(json_struct, function(_name, _value) {
@@ -93,30 +94,28 @@ function pdxGLTFmesh_primative(): pdxGLTFparems() constructor {
         
         // attributes is a required value
         if(!struct_exists(self, "attributes")) {
-            self.add_error("meshes.mesh.primative is REQUIRED");
+            self.add_error("meshes.mesh.primitive is REQUIRED");
         }
     }}
 
 
 function pdxGLTFmesh(): pdxGLTFparems() constructor {
-    self.primitaves = array_create(0);
+    self.primitives = array_create(0);
     static process_json = function(json_struct) {
         struct_foreach(json_struct, function(_name, _value) {
             if(_name == "primitives") {
                 if((typeof(_value) == "array")) {
                     var _al = array_length(_value);
-                    array_resize(self.primitaves, _al);
+                    array_resize(self.primitives, _al);
                    
                     for(var _i = 0; _i < _al; _i++) {
                         if(typeof(_value[_i]) == "struct") {
-                            self.primitaves[_i] = new pdxGLTFmesh_primative();
-                            self.primitaves[_i].process_json(_value[_i]);
+                            self.primitives[_i] = new pdxGLTFmesh_primitive();
+                            self.primitives[_i].process_json(_value[_i]);
                         } else {
                             self.add_error("glTF mesh.primitive is not a struct - got " + typeof(json_array[_i]));
                         }
                     }
-                                
-                                
                     
                 } else {
                     self.add_error("glTF mesh.primitives is not an array - got " + typeof(_value));
@@ -196,9 +195,9 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     self.load_time = 0;
     self.read_time = 0;
     self.asset = new pdxGLTFasset();            // 5.17.5
+    self.scene = NaN;                           // 5.17.14
     self.extensionsRequired = array_create(0);  // 5.17.2
     self.extensionsUsed = array_create(0);      // 5.17.1
-    self.scene = NaN;                           // 5.17.14
     self.scenes = array_create(0);              // 5.17.15
     self.nodes = array_create(0);               // 5.17.12
     self.materials = array_create(0);           // 5.17.10
@@ -210,11 +209,29 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     self.buffers = array_create(0);             // 5.17.6
     self.animations = array_create(0);          // 5.17.4
     self.skins = array_create(0);               // 5.17.16
-    self.extras = {};                           // 5.17.19
-    self.extensions = {};                       // 5.17.18
     self.cameras = array_create(0);             // 5.17.8
     self.images = array_create(0);              // 5.17.9
+    self.extras = {};                           // 5.17.19
+    self.extensions = {};                       // 5.17.18
 
+    self.counts = {
+        extensionsRequired: 0,
+        extensionsUsed: 0,
+        scenes: 0,
+        nodes: 0,
+        materials: 0,
+        meshes: 0,
+        textures: 0,
+        accessors: 0,
+        bufferViews: 0,
+        samplers: 0,
+        buffers: 0,
+        animations: 0,
+        skins: 0,
+        cameras: 0,
+        images: 0 
+    }
+    
     static process_json_array = function(target, json_array) {
         var _al = array_length(json_array);
         array_resize(target, _al);
@@ -495,11 +512,30 @@ function pdxGLTFBase(): pdxModelFile() constructor {
             //    show_debug_message($"{_name}: {_value}");
             }
         });
+        
+        self.counts.extensionsRequired = array_length(self.extensionsRequired);
+        self.counts.extensionsUsed = array_length(self.extensionsUsed);
+        self.counts.scenes = array_length(self.scenes);
+        self.counts.nodes = array_length(self.nodes);
+        self.counts.materials = array_length(self.materials);
+        self.counts.meshes = array_length(self.meshes);
+        self.counts.textures = array_length(self.textures);
+        self.counts.accessors = array_length(self.accessors);
+        self.counts.bufferViews = array_length(self.bufferViews);
+        self.counts.samplers = array_length(self.samplers);
+        self.counts.buffers = array_length(self.buffers);
+        self.counts.animations = array_length(self.animations);
+        self.counts.skins = array_length(self.skins);
+        self.counts.cameras = array_length(self.cameras);
+        self.counts.images = array_length(self.images);
+        
     }
+        
+        
+   
     
     static load_external_buffers = function() {
-        var _al = array_length(self.buffers);
-        for(var _i = 0; _i < _al; _i++) {
+        for(var _i = 0; _i < self.counts.buffers; _i++) {
             if(struct_exists(self.buffers[_i], "uri")) {
                 if(!file_exists(self.filepath + self.buffers[_i].uri)) {
                     self.critical("Exsternal data buffer bot found : " + self.filepath + self.buffers[_i].uri);
@@ -519,19 +555,138 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     
     static free = function() {
         /*
-        var _il = array_length(self.images);
-        for(var _i = 0; _i < _il; _i++) {
+        for(var _i = 0; _i < self.counts.images; _i++) {
             self.images[_il].free();
         }
+        self.count.images = 0;
         */ 
-        var _bl = array_length(self.buffers);
-        for(var _i = 0; _i < _bl; _i++) {
+        for(var _i = 0; _i < self.counts.buffers; _i++) {
             if(buffer_exists(self.buffers[_i].data)) {
                 buffer_delete(self.buffers[_i].data);
                 self.buffers[_i].data = undefined;
             }
         }
+        self.counts.buffers = 0;
     }
+    
+    static decode_attribute = function(_attrib, _value) {
+        if(_attrib == "POSITION") {
+            if(_value < self.counts.accessors) {
+                var _a = self.accessors[_value];
+                show_debug_message("    ====> Vertices = " + string(_a.count));
+            }
+        } else if(_attrib == "NORMAL") {
+            if(_value < self.counts.accessors) {
+                var _a = self.accessors[_value];
+                show_debug_message("    ====> Normals = " + string(_a.count));
+            }
+        } else if(string_starts_with( _attrib, "TEXCOORD_")) {
+            if(_value < self.counts.accessors) {
+                var _a = self.accessors[_value];
+                show_debug_message("    ====> Texcoords = " + string(_a.count));
+            }
+        } else if(string_starts_with( _attrib, "COLOR_")) {
+            if(_value < self.counts.accessors) {
+                var _a = self.accessors[_value];
+                show_debug_message("    ====> Colors = " + string(_a.count));
+            }
+        } else if(string_starts_with( _attrib, "JOINTS_")) {
+            if(_value < self.counts.accessors) {
+                var _a = self.accessors[_value];
+                show_debug_message("    ====> Joints = " + string(_a.count));
+            }
+        } else if(string_starts_with( _attrib, "WEIGHTS_")) {
+            if(_value < self.counts.accessors) {
+                var _a = self.accessors[_value];
+                show_debug_message("    ====> Weights = " + string(_a.count));
+            }
+        } else if(_attrib == "TANGENT") {
+            if(_value < self.counts.accessors) {
+                var _a = self.accessors[_value];
+                show_debug_message("    ====> Tangents = " + string(_a.count));
+            }
+        } else {
+            self.critical("Unhandled attribute " + _attrib);
+        }
+        
+    }
+    
+    static process_primitive = function(primitive) {
+        if(!struct_exists(primitive, "attributes")) {
+            self.critical("Mesh primitive has no attributes");
+        }
+        struct_foreach(primitive.attributes, 
+            function(_name, _value) {
+                self.decode_attribute(_name, _value)
+            }
+        );
+        if(struct_exists(primitive, "indices")) {
+                if(primitive.indices < self.counts.accessors) {
+                    var _a = self.accessors[primitive.indices];
+                    show_debug_message("    ====> Triangles = " + string(_a.count/3) + " (" + string(_a.count) + ")");
+                }
+        }
+        
+    }
+
+    static process_node = function(_node) {
+        if(struct_exists(_node, "mesh")) {
+            var _mesh_index = _node.mesh;
+            if(_mesh_index < self.counts.meshes) {
+                var _mesh = self.meshes[_mesh_index];
+                if(struct_exists(_mesh, "name")) {
+                    show_debug_message("    ====> name " + _mesh.name);
+                }
+                if(struct_exists(_mesh, "primitives")) {
+                    var _primitive_count = array_length(_mesh.primitives);
+                    for(var _p = 0; _p<_primitive_count; _p++) {
+                        show_debug_message("    ====> Primative " + string(_p));
+                        self.process_primitive(_mesh.primitives[_p]);
+                    }
+                }
+            }
+        }
+        
+        if(struct_exists(_node, "children")) {
+            var _child_count = array_length(_node.children);
+            for(var _c = 0; _c<_child_count; _c++) {
+                var _child_index = _node.children[_c];
+//                show_debug_message("    ====> child [" + string(_c) + "] = " + string(_child_index));
+                if(_child_index < self.counts.nodes) {
+                    var _child_node = self.nodes[_child_index];
+                    self.process_node(_child_node);
+                }
+            }
+        }
+    }
+    
+    
+    static build = function() {
+        if(typeof(self.scene)=="number") {
+            if(!struct_exists(self, "scenes")) {
+                return false;
+            }
+            if(!struct_exists(self, "nodes")) {
+                return false;
+            }
+            
+            if(self.scene < self.counts.scenes) {
+                var _scene = self.scenes[self.scene];
+                if(!struct_exists(_scene, "nodes")) {
+                    return false;
+                }
+                var _scene_nodes = array_length(_scene.nodes);
+                for(var _n = 0; _n<_scene_nodes; _n++) {
+                    var _node_index = _scene.nodes[_n];
+                    if(_node_index < self.counts.nodes) {
+                        var _node = self.nodes[_node_index];
+                        self.process_node(_node);
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 function pdxGLTF(): pdxGLTFBase() constructor {
@@ -547,8 +702,10 @@ function pdxGLTF(): pdxGLTFBase() constructor {
         if(_bsize > 0) {
             var _json_txt = buffer_read(_buffer, buffer_string);
             self.json = json_parse(_json_txt);
-            self.process_json(self.json);                    
-            show_debug_message(_json_txt);
+            self.process_json(self.json);
+            if(global.pdxGltfShowJson) {                    
+                show_debug_message(_json_txt);
+            }
         }
         buffer_delete(_buffer);
         
@@ -597,7 +754,9 @@ function pdxGLB(): pdxGLTFBase() constructor {
                         var _json_txt = buffer_read(_tempbuf1, buffer_string);
                         self.json = json_parse(_json_txt);
                         self.process_json(self.json);                    
-                        show_debug_message(_json_txt);
+                        if(global.pdxGltfShowJson) {                    
+                            show_debug_message(_json_txt);
+                        }
                         buffer_seek(_buffer, buffer_seek_relative, _chunk_length);
                         buffer_delete(_tempbuf1);
                         
@@ -650,7 +809,7 @@ function pdxGLB(): pdxGLTFBase() constructor {
         self.load_external_buffers();
         
         self.load_time = get_timer() - self.load_time;
-        
+
         return true;
     }
     

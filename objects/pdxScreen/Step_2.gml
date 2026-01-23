@@ -7,3 +7,7 @@ if(keyboard_check_pressed(vk_space)) {
     tfps = 0;
     nfps = 0;
 }
+
+if(keyboard_check_pressed(vk_f12)) {
+   throw("Test");
+}
