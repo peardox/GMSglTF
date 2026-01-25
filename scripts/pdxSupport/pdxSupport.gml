@@ -10,10 +10,12 @@ function exception_handler(except) {
 
 function init() {
 //    exception_unhandled_handler(exception_handler);
-    var _test = new pdxGltfMeshPrimitive();
+    /*
+    var _test = new pdxGltfDataMeshPrimitive();
     _test.attributes = 0;
     _test.validate();
     show_debug_message(string(_test));
+    */ 
 }
 
 init();

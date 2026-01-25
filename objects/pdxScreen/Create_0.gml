@@ -29,10 +29,13 @@ _fn = "glb\\door-rotate-square-a.glb";
 _fn = "glb/assetforge-door.glb";
 _fn = "gltf/Rotator.gltf";
 _fn = "glb/rotate.glb";
+_fn = "glb/dice.glb";
 */
 
 _fn = "glb/ShadedCube.glb";
 _fn = "glb/basic_cube.glb";
+_fn = "glb/dice.glb";
+
 //_fn = "glb/CubeRotateTranslate.glb";
 //_fn = "glb/squirrel.glb";
 //_fn = "glb/Skeleton_Warrior.glb";

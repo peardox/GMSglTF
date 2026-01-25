@@ -1,35 +1,6 @@
 pdxGltfSpecificationVersion = "2.0.1";
 pdxGltfShowJson = false;
 
-enum glbChunk {
-    JSON = 0x4E4F534A,
-    BIN  = 0x004E4942
-}
-
-enum glbComponentType {
-    s8      = 5120,   //    signed byte     Signed, 2’s comp     8
-    u8      = 5121,   //    unsigned byte   Unsigned             8
-    s16     = 5122,   //    signed short    Signed, 2’s comp    16
-    u16     = 5123,   //    unsigned short  Unsigned            16
-    u32     = 5125,   //    unsigned int    Unsigned            32
-    float   = 5126    //    float           Signed              32
-}
-
-enum glbMeshPrimitiveMode {
-    POINTS,
-    LINES,
-    LINE_LOOP,
-    LINE_STRIP,
-    TRIANGLES,
-    TRIANGLE_STRIP,
-    TRIANGLE_FAN
-}
-
-enum glbBufferViewTarget {
-    ARRAY_BUFFER = 34962,
-    ELEMENT_ARRAY_BUFFER = 34963
-}
-
 function pdxModelFile() : pdxException() constructor {
     filename = "";
     filepath = "";
@@ -83,10 +54,6 @@ function pdxGLTFmaterial(): pdxGLTFparems() constructor {
 }
 
 function pdxGLTFmesh_primitive(): pdxGLTFparems() constructor {
-    // The optional default is triangles, and is usually not in the json so it needs setting
-    // This will be overwritten if present in json - typically by a non-triangle mode
-    self.mode = glbMeshPrimitiveMode.TRIANGLES;
-    
     static process_json = function(json_struct) {
         struct_foreach(json_struct, function(_name, _value) {
             self[$ _name] = _value;
@@ -668,8 +635,15 @@ function pdxGLTFBase(): pdxModelFile() constructor {
             }
             if(!struct_exists(self, "nodes")) {
                 return false;
-            }
-            
+            } 
+/*
+            if(self.counts.scenes > 0) {
+                var _data = array_create(self.counts.scenes);
+                for(var _i=0; _i < self.counts.scenes; _i++) {
+                    _data[_i] = new pdxGltfDataScene();
+                }
+            }            
+*/ 
             if(self.scene < self.counts.scenes) {
                 var _scene = self.scenes[self.scene];
                 if(!struct_exists(_scene, "nodes")) {
@@ -748,7 +722,7 @@ function pdxGLB(): pdxGLTFBase() constructor {
                     return false;
                 }
                 switch(_chunk_type) {
-                    case glbChunk.JSON:
+                    case gltfChunk.JSON:
                         var _tempbuf1 = buffer_create(_chunk_length, buffer_fixed, 1);
                         buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, _tempbuf1, 0);
                         var _json_txt = buffer_read(_tempbuf1, buffer_string);
@@ -761,7 +735,7 @@ function pdxGLB(): pdxGLTFBase() constructor {
                         buffer_delete(_tempbuf1);
                         
                         break;
-                    case glbChunk.BIN:
+                    case gltfChunk.BIN:
                         if(array_length(self.buffers) <> 1) {
                             self.critical("GLB has multiple buffer entries");
                         }
