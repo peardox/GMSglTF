@@ -12,6 +12,16 @@ enum gltfChunk {
     BIN  = 0x004E4942
 }
 
+enum gltfAccessorType {
+    SCALAR,
+    VEC2,
+    VEC3,
+    VEC4,
+    MAT2,
+    MAT3,
+    MAT4
+}
+
 enum gltfComponentType {
     s8      = 5120,   //    signed byte     Signed, 2’s comp     8
     u8      = 5121,   //    unsigned byte   Unsigned             8

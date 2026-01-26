@@ -18,7 +18,11 @@ function init() {
     */ 
 }
 
-init();
+// init();
+
+function is_int(x) {
+    return floor(x) == x;
+}
 
 function nextsequence(path, base, ext, digits = 3) {
     var _i = 0
@@ -134,6 +138,7 @@ function get_file_parts(filename, delim = "/") {
     var parts = {
         path: "",
         name: "",
+        filebase: "",
         extension: ""
     };
         
@@ -152,12 +157,20 @@ function get_file_parts(filename, delim = "/") {
                 parts.name = string_trim(_full_file_parts[_ffp_count - 1]);    
             }
             
-            var _file_parts = string_split(string_trim(_full_file_parts[_ffp_count - 1]), ".", true);
+            var _fname = string_trim(_full_file_parts[_ffp_count - 1]);
+            var _file_parts = string_split(_fname, ".", true);
             var _fp_count = array_length(_file_parts);
             if(_fp_count > 1) {
                 parts.extension = string_lower(_file_parts[_fp_count - 1]);
+                var _ext_len = string_length(parts.extension);
+                if(_ext_len > 0) {
+                    parts.filebase = string_copy(_fname, 1, string_length(_fname) - _ext_len - 1);
+                } else {
+                    parts.filebase = _fname;
+                }
             }
-        rval = parts;        
+            
+            rval = parts;        
         }
     }
     
@@ -172,14 +185,14 @@ function open_model(filename) {
     if(_parts && _parts.extension!="") {
         if(_parts.extension == "glb") {
             _amodel = new pdxGLB();
-            if(_amodel.open(_parts.path, _parts.name)) {
+            if(_amodel.open(_parts.path, _parts.name, _parts.filebase)) {
                 _rval = _amodel;
             } else {
                 delete(_amodel);
             }
         } else if(_parts.extension == "gltf") {
             _amodel = new pdxGLTF();
-            if(_amodel.open(_parts.path, _parts.name)) {
+            if(_amodel.open(_parts.path, _parts.name, _parts.filebase)) {
                 _rval = _amodel;
             } else {
                 delete(_amodel);

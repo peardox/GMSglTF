@@ -35,11 +35,16 @@ _fn = "glb/dice.glb";
 _fn = "glb/ShadedCube.glb";
 _fn = "glb/basic_cube.glb";
 _fn = "glb/dice.glb";
+_fn = "glb/ancient_desert_arena.glb";
+_fn = "glb/d6.glb";
+//_fn = "glb/d20.glb";
 
 //_fn = "glb/CubeRotateTranslate.glb";
 //_fn = "glb/squirrel.glb";
 //_fn = "glb/Skeleton_Warrior.glb";
-amodel = open_model(working_directory + _fn);
+var _wd = "C:\\src\\GMSglTF\\datafiles\\";
+amodel = open_model(_wd + _fn);
+//amodel = open_model(working_directory + _fn);
 if(amodel) {
     amodel.read();
     amodel.build();

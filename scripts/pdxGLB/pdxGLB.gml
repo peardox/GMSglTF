@@ -4,11 +4,13 @@ pdxGltfShowJson = false;
 function pdxModelFile() : pdxException() constructor {
     filename = "";
     filepath = "";
-
-    static open = function(apath, afile) {
+    filebase = "";
+    
+    static open = function(apath, afile, abase) {
         if(file_exists(apath + afile)) {
             self.filepath = apath;
             self.filename = afile;
+            self.filebase = abase;
             return true;            
         }
         return false;
@@ -537,47 +539,63 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     }
     
     static decode_attribute = function(_attrib, _value) {
-        if(_attrib == "POSITION") {
-            if(_value < self.counts.accessors) {
-                var _a = self.accessors[_value];
-                show_debug_message("    ====> Vertices = " + string(_a.count));
+        var _handled = false;
+        switch(_attrib) 
+        { 
+            case "POSITION":
+                if(_value < self.counts.accessors) 
+                {
+                    var _a = self.accessors[_value];
+                    show_debug_message("    ====> Vertices = " + string(_a.count));
+                }
+                _handled = true;
+                break;
+            case "NORMAL":
+                if(_value < self.counts.accessors) 
+                {
+                    var _a = self.accessors[_value];
+                    show_debug_message("    ====> Normals = " + string(_a.count));
+                }
+                _handled = true;
+                break;
+            case "TANGENT":
+                if(_value < self.counts.accessors) 
+                {
+                    var _a = self.accessors[_value];
+                    show_debug_message("    ====> Tangents = " + string(_a.count));
+                }
+                _handled = true;
+                break;
+        }
+        if(!_handled) {
+            if(string_starts_with( _attrib, "TEXCOORD_")) {
+                if(_value < self.counts.accessors) {
+                    var _a = self.accessors[_value];
+                    show_debug_message("    ====> Texcoords = " + string(_a.count));
+                } else if(string_starts_with( _attrib, "COLOR_")) {
+                    if(_value < self.counts.accessors) {
+                        var _a = self.accessors[_value];
+                        show_debug_message("    ====> Colors = " + string(_a.count));
+                    }
+                } else if(string_starts_with( _attrib, "JOINTS_")) {
+                    if(_value < self.counts.accessors) {
+                        var _a = self.accessors[_value];
+                        show_debug_message("    ====> Joints = " + string(_a.count));
+                    }
+                } else if(string_starts_with( _attrib, "WEIGHTS_")) {
+                    if(_value < self.counts.accessors) {
+                        var _a = self.accessors[_value];
+                        show_debug_message("    ====> Weights = " + string(_a.count));
+                    }
+                } else {
+                    self.critical("Unhandled attribute " + _attrib);
+                }
             }
-        } else if(_attrib == "NORMAL") {
-            if(_value < self.counts.accessors) {
-                var _a = self.accessors[_value];
-                show_debug_message("    ====> Normals = " + string(_a.count));
-            }
-        } else if(string_starts_with( _attrib, "TEXCOORD_")) {
-            if(_value < self.counts.accessors) {
-                var _a = self.accessors[_value];
-                show_debug_message("    ====> Texcoords = " + string(_a.count));
-            }
-        } else if(string_starts_with( _attrib, "COLOR_")) {
-            if(_value < self.counts.accessors) {
-                var _a = self.accessors[_value];
-                show_debug_message("    ====> Colors = " + string(_a.count));
-            }
-        } else if(string_starts_with( _attrib, "JOINTS_")) {
-            if(_value < self.counts.accessors) {
-                var _a = self.accessors[_value];
-                show_debug_message("    ====> Joints = " + string(_a.count));
-            }
-        } else if(string_starts_with( _attrib, "WEIGHTS_")) {
-            if(_value < self.counts.accessors) {
-                var _a = self.accessors[_value];
-                show_debug_message("    ====> Weights = " + string(_a.count));
-            }
-        } else if(_attrib == "TANGENT") {
-            if(_value < self.counts.accessors) {
-                var _a = self.accessors[_value];
-                show_debug_message("    ====> Tangents = " + string(_a.count));
-            }
-        } else {
-            self.critical("Unhandled attribute " + _attrib);
+            _handled = false;
+        }
+                
         }
         
-    }
-    
     static process_primitive = function(primitive) {
         if(!struct_exists(primitive, "attributes")) {
             self.critical("Mesh primitive has no attributes");
@@ -591,9 +609,36 @@ function pdxGLTFBase(): pdxModelFile() constructor {
                 if(primitive.indices < self.counts.accessors) {
                     var _a = self.accessors[primitive.indices];
                     show_debug_message("    ====> Triangles = " + string(_a.count/3) + " (" + string(_a.count) + ")");
+                    self.decode_accessor(_a, [gltfComponentType.u8, gltfComponentType.u16, gltfComponentType.u32]);
                 }
         }
         
+    }
+    
+    static decode_buffer = function(buf_view) {
+        
+    }
+    
+    static decode_accessor = function(obj, expected_type) {
+        if(array_contains(expected_type, obj.componentType)) {
+            if(obj.type == "SCALAR") {
+                
+            } else if(obj.type == "VEC4") {
+            } else if(obj.type == "VEC3") {
+            } else if(obj.type == "VEC2") {
+            } else if(obj.type == "MAT4") {
+            } else if(obj.type == "MAT3") {
+            } else if(obj.type == "MAT2") {
+            } else {
+                self.critical("Bad accesstor Type");
+            }    
+                
+                
+                
+
+        } else {
+            self.critical("Bad ComponentType");
+        }
     }
 
     static process_node = function(_node) {
@@ -728,6 +773,10 @@ function pdxGLB(): pdxGLTFBase() constructor {
                         var _json_txt = buffer_read(_tempbuf1, buffer_string);
                         self.json = json_parse(_json_txt);
                         self.process_json(self.json);                    
+                        var _outfile = self.filepath + self.filebase + ".json";
+                        if(!file_exists(_outfile)) {
+                            buffer_save_ext(_tempbuf1, _outfile, 0, _chunk_length);
+                        }
                         if(global.pdxGltfShowJson) {                    
                             show_debug_message(_json_txt);
                         }
