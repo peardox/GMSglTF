@@ -1,9 +1,15 @@
 tfps += fps_real;
 nfps++;
+if(global.pdxGltfUseData)  {
+    amodel_data = amodel.data;
+} else {
+    amodel_data = amodel;    
+}
+
 
 draw_set_colour(c_yellow);
 draw_set_halign(fa_right);
-if(!amodel) {
+if(!amodel_data) {
     draw_text((virtual_width * virtual_scale) - 20,  20, "Model Not Loaded");
     exit;
 }
@@ -15,41 +21,41 @@ draw_set_halign(fa_left);
 draw_text(20, 40, "LookAt : " + string(lookat_x) + " x "  + string(lookat_y));
 draw_text(20, 60, "Virtual : " + string(virtual_width) + " x "  + string(virtual_height));
 if(amodelok && show_stats) {
-    draw_text(20,  80, "asset : "       + string(amodel.asset)             );
-    draw_text(20, 100, "rexts : "       + string(array_length(amodel.extensionsRequired)) + " : " + string(amodel.extensionsRequired));
-    draw_text(20, 120, "uexts : "       + string(array_length(amodel.extensionsUsed)    ) + " : " + string(amodel.extensionsUsed)    );
-    draw_text(20, 140, "scene : "       + string(amodel.scene)             );
-    draw_text(20, 160, "scenes : "      + string(array_length(amodel.scenes)            ) + " : " + string(amodel.scenes)            );
-    if(array_length(amodel.nodes) > 4) {
-        draw_text(20, 180, "nodes : "       + string(array_length(amodel.nodes)             ) + " : [...]");
+    draw_text(20,  80, "asset : "       + string(amodel_data.asset)             );
+    draw_text(20, 100, "rexts : "       + string(array_length(amodel_data.extensionsRequired)) + " : " + string(amodel_data.extensionsRequired));
+    draw_text(20, 120, "uexts : "       + string(array_length(amodel_data.extensionsUsed)    ) + " : " + string(amodel_data.extensionsUsed)    );
+    draw_text(20, 140, "scene : "       + string(amodel_data.scene)             );
+    draw_text(20, 160, "scenes : "      + string(array_length(amodel_data.scenes)            ) + " : " + string(amodel_data.scenes)            );
+    if(array_length(amodel_data.nodes) > 4) {
+        draw_text(20, 180, "nodes : "       + string(array_length(amodel_data.nodes)             ) + " : [...]");
     } else {
-        draw_text(20, 180, "nodes : "       + string(array_length(amodel.nodes)             ) + " : " + string(amodel.nodes)             );
+        draw_text(20, 180, "nodes : "       + string(array_length(amodel_data.nodes)             ) + " : " + string(amodel_data.nodes)             );
     }
-    draw_text(20, 200, "mat : "         + string(array_length(amodel.materials)         ) + " : " + string(amodel.materials)         );
-    draw_text(20, 220, "mesh : "        + string(array_length(amodel.meshes)            ) + " : " + string(amodel.meshes)            );
-    draw_text(20, 240, "tex : "         + string(array_length(amodel.textures)          ) + " : " + string(amodel.textures)          );
-    draw_text(20, 260, "images : "      + string(array_length(amodel.images)            ) + " : " + string(amodel.images)            );
-    if(array_length(amodel.accessors) > 4) {
-        draw_text(20, 280, "accessors : "   + string(array_length(amodel.accessors)         ) + " : [...]");
+    draw_text(20, 200, "mat : "         + string(array_length(amodel_data.materials)         ) + " : " + string(amodel_data.materials)         );
+    draw_text(20, 220, "mesh : "        + string(array_length(amodel_data.meshes)            ) + " : " + string(amodel_data.meshes)            );
+    draw_text(20, 240, "tex : "         + string(array_length(amodel_data.textures)          ) + " : " + string(amodel_data.textures)          );
+    draw_text(20, 260, "images : "      + string(array_length(amodel_data.images)            ) + " : " + string(amodel_data.images)            );
+    if(array_length(amodel_data.accessors) > 4) {
+        draw_text(20, 280, "accessors : "   + string(array_length(amodel_data.accessors)         ) + " : [...]");
     } else {
-        draw_text(20, 280, "accessors : "   + string(array_length(amodel.accessors)         ) + " : " + string(amodel.accessors)         );
+        draw_text(20, 280, "accessors : "   + string(array_length(amodel_data.accessors)         ) + " : " + string(amodel_data.accessors)         );
     }
-    if(array_length(amodel.bufferViews) > 4) {
-        draw_text(20, 300, "bufferViews : " + string(array_length(amodel.bufferViews)       ) + " : [...]");
+    if(array_length(amodel_data.bufferViews) > 4) {
+        draw_text(20, 300, "bufferViews : " + string(array_length(amodel_data.bufferViews)       ) + " : [...]");
     } else {
-        draw_text(20, 300, "bufferViews : " + string(array_length(amodel.bufferViews)       ) + " : " + string(amodel.bufferViews)       );
+        draw_text(20, 300, "bufferViews : " + string(array_length(amodel_data.bufferViews)       ) + " : " + string(amodel_data.bufferViews)       );
     }
-    draw_text(20, 320, "samplers : "    + string(array_length(amodel.samplers)          ) + " : " + string(amodel.samplers)          );
-    draw_text(20, 340, "buffers : "     + string(array_length(amodel.buffers)           ) + " : " + string(amodel.buffers)           );
-    if(array_length(amodel.animations) > 4) {
-        draw_text(20, 360, "amins : "       + string(array_length(amodel.animations)        ) + " : [...]");
+    draw_text(20, 320, "samplers : "    + string(array_length(amodel_data.samplers)          ) + " : " + string(amodel_data.samplers)          );
+    draw_text(20, 340, "buffers : "     + string(array_length(amodel_data.buffers)           ) + " : " + string(amodel_data.buffers)           );
+    if(array_length(amodel_data.animations) > 4) {
+        draw_text(20, 360, "amins : "       + string(array_length(amodel_data.animations)        ) + " : [...]");
     } else {
-        draw_text(20, 360, "amins : "       + string(array_length(amodel.animations)        ) + " : " + string(amodel.animations)        );
+        draw_text(20, 360, "amins : "       + string(array_length(amodel_data.animations)        ) + " : " + string(amodel_data.animations)        );
     }
-    draw_text(20, 380, "skins : "       + string(array_length(amodel.skins)             ) + " : " + string(amodel.skins)             );
+    draw_text(20, 380, "skins : "       + string(array_length(amodel_data.skins)             ) + " : " + string(amodel_data.skins)             );
 
-    if(amodel.has_errors()) {
-        draw_text(20, 420, "error : " + string(amodel.error));
+    if(amodel_data.has_errors()) {
+        draw_text(20, 420, "error : " + string(amodel_data.error));
     }
     if(global.pdxGlobalGltfErrorFlag) {
         draw_text(20, 420, "*** Some gltf errors ***");

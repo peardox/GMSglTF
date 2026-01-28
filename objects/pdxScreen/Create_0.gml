@@ -32,11 +32,12 @@ _fn = "glb/rotate.glb";
 _fn = "glb/dice.glb";
 */
 
-_fn = "glb/ShadedCube.glb";
 _fn = "glb/basic_cube.glb";
 _fn = "glb/dice.glb";
-_fn = "glb/ancient_desert_arena.glb";
-_fn = "glb/d6.glb";
+// _fn = "gltf/chess_set_1k.gltf";
+_fn = "glb/ShadedCube.glb";
+// _fn = "glb/ancient_desert_arena.glb";
+// _fn = "glb/d6.glb";
 //_fn = "glb/d20.glb";
 
 //_fn = "glb/CubeRotateTranslate.glb";
@@ -49,4 +50,5 @@ if(amodel) {
     amodel.read();
     amodel.build();
     amodelok = true;
+
 }

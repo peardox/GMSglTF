@@ -1,5 +1,5 @@
 pdxGltfSpecificationVersion = "2.0.1";
-pdxGltfShowJson = false;
+pdxGltfUseData = true;
 
 function pdxModelFile() : pdxException() constructor {
     filename = "";
@@ -182,7 +182,9 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     self.images = array_create(0);              // 5.17.9
     self.extras = {};                           // 5.17.19
     self.extensions = {};                       // 5.17.18
-
+    
+    self.data = undefined;
+    
     self.counts = {
         extensionsRequired: 0,
         extensionsUsed: 0,
@@ -663,7 +665,6 @@ function pdxGLTFBase(): pdxModelFile() constructor {
             var _child_count = array_length(_node.children);
             for(var _c = 0; _c<_child_count; _c++) {
                 var _child_index = _node.children[_c];
-//                show_debug_message("    ====> child [" + string(_c) + "] = " + string(_child_index));
                 if(_child_index < self.counts.nodes) {
                     var _child_node = self.nodes[_child_index];
                     self.process_node(_child_node);
@@ -681,14 +682,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
             if(!struct_exists(self, "nodes")) {
                 return false;
             } 
-/*
-            if(self.counts.scenes > 0) {
-                var _data = array_create(self.counts.scenes);
-                for(var _i=0; _i < self.counts.scenes; _i++) {
-                    _data[_i] = new pdxGltfDataScene();
-                }
-            }            
-*/ 
+
             if(self.scene < self.counts.scenes) {
                 var _scene = self.scenes[self.scene];
                 if(!struct_exists(_scene, "nodes")) {
@@ -721,10 +715,14 @@ function pdxGLTF(): pdxGLTFBase() constructor {
         if(_bsize > 0) {
             var _json_txt = buffer_read(_buffer, buffer_string);
             self.json = json_parse(_json_txt);
-            self.process_json(self.json);
-            if(global.pdxGltfShowJson) {                    
-                show_debug_message(_json_txt);
+            if(global.pdxGltfUseData) 
+            {
+                self.data = new pdxGltfData();
+                self.data.init(self.json);
+            } else {
+                self.process_json(self.json);
             }
+            
         }
         buffer_delete(_buffer);
         
@@ -733,6 +731,9 @@ function pdxGLTF(): pdxGLTFBase() constructor {
 } 
 
 function pdxGLB(): pdxGLTFBase() constructor {
+    self.bufcount = 0;
+    self.binbuffers = array_create(1);
+    
     static read = function() {
         self.load_time = get_timer();
         var _buffer = buffer_create(0, buffer_grow, 1);
@@ -772,50 +773,39 @@ function pdxGLB(): pdxGLTFBase() constructor {
                         buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, _tempbuf1, 0);
                         var _json_txt = buffer_read(_tempbuf1, buffer_string);
                         self.json = json_parse(_json_txt);
-                        self.process_json(self.json);                    
+                        if(global.pdxGltfUseData) 
+                        {
+                            self.data = new pdxGltfData();
+                            self.data.init(self.json);
+                            if(typeof(self.data.meshes) == "array") {
+                                for(var _m = 0; _m < array_length(self.data.meshes); _m++) {
+                                    show_debug_message("Mesh = " + self.data.meshes[_m].name);
+                                }
+                            }
+                        } else {
+                            self.process_json(self.json);
+                        }
                         var _outfile = self.filepath + self.filebase + ".json";
                         if(!file_exists(_outfile)) {
                             buffer_save_ext(_tempbuf1, _outfile, 0, _chunk_length);
-                        }
-                        if(global.pdxGltfShowJson) {                    
-                            show_debug_message(_json_txt);
                         }
                         buffer_seek(_buffer, buffer_seek_relative, _chunk_length);
                         buffer_delete(_tempbuf1);
                         
                         break;
                     case gltfChunk.BIN:
-                        if(array_length(self.buffers) <> 1) {
+                        self.bufcount++;
+                        if(self.bufcount <> 1) {
                             self.critical("GLB has multiple buffer entries");
                         }
-                        self.buffers[0].data = buffer_create(_chunk_length, buffer_fixed, 1);
-                        buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, self.buffers[0].data, 0);
+                        self.binbuffers[0] = buffer_create(_chunk_length, buffer_fixed, 1);
+                        buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, self.binbuffers[0], 0);
                         // Do stuff with tempobuf2
                         if(self.filename == "world.glb") {
                             var _al = array_length(self.images);
                             array_resize(self.images, _al + 1)
                             self.images[_al] = new pdxImage();
-                            self.images[_al].load_from_buffer(self.buffers[0].data, 69248, 1337486, "tex_world");
-                            /*
-                            var _img_buf = buffer_create(1337486, buffer_fixed, 1);
-                            buffer_copy(_tempbuf2, 69248, 1337486, _img_buf, 0);
-                            var _sprite_data = {
-                                sprites : 
-                                {        
-                                    world : 
-                                    {
-                                        width : 1024,
-                                        height : 1024,
-                                        frames :
-                                        [ 
-                                            { x : 0, y : 0 }
-                                        ],
-                                    }}};
-                            texturegroup_add("tex_world", _img_buf, _sprite_data);
-                            texturegroup_load("tex_world");
-                            self.add_error("texture = " + string(texturegroup_get_status("tex_world")));
-                            // buffer_delete(_img_buf);
-                            */
+                            self.images[_al].load_from_buffer(self.binbuffers[0], 69248, 1337486, "tex_world");
                         }
                         buffer_seek(_buffer, buffer_seek_relative, _chunk_length);
                         break;

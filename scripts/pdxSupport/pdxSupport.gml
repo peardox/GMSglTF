@@ -24,6 +24,21 @@ function is_int(x) {
     return floor(x) == x;
 }
 
+function is_string_numeric(s) {
+    if(typeof(s) != "string") {
+        return false;
+    }
+    var _sl = string_length(s);
+    for(var _i=1; _i <= _sl; _i++) {
+        var _c = string_ord_at(s, _i);
+        if((_c < 48) || (_c > 57)) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 function nextsequence(path, base, ext, digits = 3) {
     var _i = 0
     path = string_trim(path);
