@@ -27,7 +27,7 @@ if(amodelok && show_stats) {
     draw_text(20, 140, "scene : "       + string(amodel_data.scene)             );
     draw_text(20, 160, "scenes : "      + string(array_length(amodel_data.scenes)            ) + " : " + string(amodel_data.scenes)            );
     if(array_length(amodel_data.nodes) > 4) {
-        draw_text(20, 180, "nodes : "       + string(array_length(amodel_data.nodes)             ) + " : [...]");
+        draw_text(20, 180, "nodes : "       + string(array_length(amodel_data.nodes)             ) + " : " + string(amodel_data.nodes[0]) + " [...]");
     } else {
         draw_text(20, 180, "nodes : "       + string(array_length(amodel_data.nodes)             ) + " : " + string(amodel_data.nodes)             );
     }
@@ -36,29 +36,39 @@ if(amodelok && show_stats) {
     draw_text(20, 240, "tex : "         + string(array_length(amodel_data.textures)          ) + " : " + string(amodel_data.textures)          );
     draw_text(20, 260, "images : "      + string(array_length(amodel_data.images)            ) + " : " + string(amodel_data.images)            );
     if(array_length(amodel_data.accessors) > 4) {
-        draw_text(20, 280, "accessors : "   + string(array_length(amodel_data.accessors)         ) + " : [...]");
+        draw_text(20, 280, "accessors : "   + string(array_length(amodel_data.accessors)         )  + " : " + string(amodel_data.accessors[0]) + " [...]");
     } else {
         draw_text(20, 280, "accessors : "   + string(array_length(amodel_data.accessors)         ) + " : " + string(amodel_data.accessors)         );
     }
     if(array_length(amodel_data.bufferViews) > 4) {
-        draw_text(20, 300, "bufferViews : " + string(array_length(amodel_data.bufferViews)       ) + " : [...]");
+        draw_text(20, 300, "bufferViews : " + string(array_length(amodel_data.bufferViews)       )  + " : " + string(amodel_data.bufferViews[0]) + " [...]");
     } else {
         draw_text(20, 300, "bufferViews : " + string(array_length(amodel_data.bufferViews)       ) + " : " + string(amodel_data.bufferViews)       );
     }
     draw_text(20, 320, "samplers : "    + string(array_length(amodel_data.samplers)          ) + " : " + string(amodel_data.samplers)          );
     draw_text(20, 340, "buffers : "     + string(array_length(amodel_data.buffers)           ) + " : " + string(amodel_data.buffers)           );
     if(array_length(amodel_data.animations) > 4) {
-        draw_text(20, 360, "amins : "       + string(array_length(amodel_data.animations)        ) + " : [...]");
+        draw_text(20, 360, "amins : "       + string(array_length(amodel_data.animations)        )  + " : " + string(amodel_data.animations[0]) + " [...]");
     } else {
         draw_text(20, 360, "amins : "       + string(array_length(amodel_data.animations)        ) + " : " + string(amodel_data.animations)        );
     }
     draw_text(20, 380, "skins : "       + string(array_length(amodel_data.skins)             ) + " : " + string(amodel_data.skins)             );
 
     if(amodel_data.has_errors()) {
-        draw_text(20, 420, "error : " + string(amodel_data.error));
+        draw_text(20, 420, "*** Errors *** : " + string(amodel_data.error));
+    } else {
+        draw_text(20, 420, "No Errors");
     }
-    if(global.pdxGlobalGltfErrorFlag) {
-        draw_text(20, 420, "*** Some gltf errors ***");
+    if(amodel_data.has_warnings()) {
+        draw_text(20, 440, "*** Warnings *** : " + string(amodel_data.warning));
+    } else {
+        draw_text(20, 440, "No Warnings");
+    }
+
+    if(is_array(self.files)) {
+        draw_text(20, 460, "*** Files *** : " + string(self.files));
+    } else {
+        draw_text(20, 460, "No Files");
     }
 }
 

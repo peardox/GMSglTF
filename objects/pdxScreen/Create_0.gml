@@ -30,19 +30,17 @@ _fn = "glb/assetforge-door.glb";
 _fn = "gltf/Rotator.gltf";
 _fn = "glb/rotate.glb";
 _fn = "glb/dice.glb";
+_fn = "glb/ancient_desert_arena.glb";
+_fn = "glb/d6.glb";
+_fn = "glb/d20.glb";
 */
 
 _fn = "glb/basic_cube.glb";
 _fn = "glb/dice.glb";
 // _fn = "gltf/chess_set_1k.gltf";
 _fn = "glb/ShadedCube.glb";
-// _fn = "glb/ancient_desert_arena.glb";
-// _fn = "glb/d6.glb";
-//_fn = "glb/d20.glb";
-
-//_fn = "glb/CubeRotateTranslate.glb";
-//_fn = "glb/squirrel.glb";
-//_fn = "glb/Skeleton_Warrior.glb";
+_fn = "glb/rotate.glb";
+_fn = "glb/ancient_desert_arena.glb";
 var _wd = "C:\\src\\GMSglTF\\datafiles\\";
 amodel = open_model(_wd + _fn);
 //amodel = open_model(working_directory + _fn);
@@ -52,3 +50,5 @@ if(amodel) {
     amodelok = true;
 
 }
+
+files = find_models(_wd + "glb");

@@ -36,6 +36,7 @@
     {"$GMIncludedFile":"","%Name":"door-rotate-square-a.json","CopyToMask":-1,"filePath":"datafiles/glb","name":"door-rotate-square-a.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"minigolf-castle.glb","CopyToMask":-1,"filePath":"datafiles/glb","name":"minigolf-castle.glb","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"rotate.glb","CopyToMask":-1,"filePath":"datafiles/glb","name":"rotate.glb","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
+    {"$GMIncludedFile":"","%Name":"rotate.json","CopyToMask":-1,"filePath":"datafiles/glb","name":"rotate.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"ShadedCube.glb","CopyToMask":-1,"filePath":"datafiles/glb","name":"ShadedCube.glb","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"ShadedCube.json","CopyToMask":-1,"filePath":"datafiles/glb","name":"ShadedCube.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"ShadedCubeOffsetX30.glb","CopyToMask":-1,"filePath":"datafiles/glb","name":"ShadedCubeOffsetX30.glb","resourceType":"GMIncludedFile","resourceVersion":"2.0",},

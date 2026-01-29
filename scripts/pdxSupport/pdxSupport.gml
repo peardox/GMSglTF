@@ -93,6 +93,13 @@ function pdxException() constructor {
         }
        return false;
     }
+    
+    static has_warnings = function() {
+        if(struct_exists(self, "warning")) {
+            return true;
+        }
+       return false;
+    }
 }
 
 function pdxImageDimensions(width = 0, height = 0) constructor {
@@ -148,8 +155,19 @@ function pdxImage() : pdxException() constructor {
 
 }
 
+/// @desc Normalise a path
+/// @param {string} path Path to normalize
+/// @returns {string} Normalized path
+function normalise_path(path) {
+    var rpath = string_replace_all(path, "\\", "/");
+    while(string_ends_with(rpath, "/")) {
+        rpath = string_copy(rpath, 1, string_length(rpath) - 1);
+    }
+    
+    return rpath + "/";
+}
+
 function get_file_parts(filename, delim = "/") {
-    var rval = false;
     var parts = {
         path: "",
         name: "",
@@ -185,11 +203,10 @@ function get_file_parts(filename, delim = "/") {
                 }
             }
             
-            rval = parts;        
         }
     }
     
-    return rval;
+    return parts;
 }
 
 function open_model(filename) {
@@ -197,24 +214,48 @@ function open_model(filename) {
     var _amodel = undefined;
     var _parts = get_file_parts(filename);
         
-    if(_parts && _parts.extension!="") {
-        if(_parts.extension == "glb") {
-            _amodel = new pdxGLB();
-            if(_amodel.open(_parts.path, _parts.name, _parts.filebase)) {
-                _rval = _amodel;
-            } else {
-                delete(_amodel);
-            }
-        } else if(_parts.extension == "gltf") {
-            _amodel = new pdxGLTF();
-            if(_amodel.open(_parts.path, _parts.name, _parts.filebase)) {
-                _rval = _amodel;
-            } else {
-                delete(_amodel);
-            }
+    if(_parts.extension == "glb") {
+        _amodel = new pdxGLB();
+        if(_amodel.open(_parts.path, _parts.name, _parts.filebase)) {
+            _rval = _amodel;
+        } else {
+            delete(_amodel);
+        }
+    } else if(_parts.extension == "gltf") {
+        _amodel = new pdxGLTF();
+        if(_amodel.open(_parts.path, _parts.name, _parts.filebase)) {
+            _rval = _amodel;
+        } else {
+            delete(_amodel);
         }
     }
-
     
     return _rval;
 }
+
+function find_models(dir) {
+    var files = false;
+    var sdir = normalise_path(dir);
+
+    if(directory_exists(sdir)) {
+        var file_name = file_find_first(sdir + "*", fa_readonly | fa_archive | fa_none);
+        while (file_name != "")
+        {
+            if(files == false) {
+                files = array_create(0);
+            }
+            
+            var ftype = get_file_parts(sdir + file_name);
+            if(array_contains(["glb", "gltf"],ftype.extension)) {
+                array_push(files, file_name);
+            }
+            file_name = file_find_next();
+        }
+        
+        file_find_close();        
+    }
+    
+    return files;
+}
+
+
