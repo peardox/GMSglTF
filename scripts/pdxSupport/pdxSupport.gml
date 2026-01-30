@@ -20,6 +20,15 @@ function init() {
 
 // init();
 
+function TextToFile(text, fname) {
+    if(file_exists(fname)) {
+        return;
+    }
+    var file = file_text_open_write(fname);
+    file_text_write_string(file, text);
+    file_text_close(file);    
+}
+
 function is_int(x) {
     return floor(x) == x;
 }

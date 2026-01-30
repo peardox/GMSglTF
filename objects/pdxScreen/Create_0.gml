@@ -37,12 +37,10 @@ _fn = "glb/d20.glb";
 
 _fn = "glb/basic_cube.glb";
 _fn = "glb/dice.glb";
-// _fn = "gltf/chess_set_1k.gltf";
 _fn = "glb/ShadedCube.glb";
-_fn = "glb/rotate.glb";
-_fn = "glb/ancient_desert_arena.glb";
-var _wd = "C:\\src\\GMSglTF\\datafiles\\";
-amodel = open_model(_wd + _fn);
+_fn = "gltf/chess_set_1k.gltf";
+wd = "C:\\src\\GMSglTF\\datafiles\\";
+amodel = open_model(wd + _fn);
 //amodel = open_model(working_directory + _fn);
 if(amodel) {
     amodel.read();
@@ -51,4 +49,4 @@ if(amodel) {
 
 }
 
-files = find_models(_wd + "glb");
+files = find_models(wd + "glb");
