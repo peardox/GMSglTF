@@ -16,57 +16,70 @@ draw_text((virtual_width * virtual_scale) - 20,  20, "Load : " + string_format(a
 
 draw_set_colour(c_white);
 draw_set_halign(fa_left);
-draw_text(20, 40, "LookAt : " + string(lookat_x) + " x "  + string(lookat_y));
-draw_text(20, 60, "Virtual : " + string(virtual_width) + " x "  + string(virtual_height));
-if(amodelok && show_stats) {
-    draw_text(20,  80, "asset : "       + string(amodel_data.asset)             );
-    draw_text(20, 100, "rexts : "       + string(array_length(amodel_data.extensionsRequired)) + " : " + string(amodel_data.extensionsRequired));
-    draw_text(20, 120, "uexts : "       + string(array_length(amodel_data.extensionsUsed)    ) + " : " + string(amodel_data.extensionsUsed)    );
-    draw_text(20, 140, "scene : "       + string(amodel_data.scene)             );
-    draw_text(20, 160, "scenes : "      + string(array_length(amodel_data.scenes)            ) + " : " + string(amodel_data.scenes)            );
-    if(array_length(amodel_data.nodes) > 4) {
-        draw_text(20, 180, "nodes : "       + string(array_length(amodel_data.nodes)             ) + " : " + string(amodel_data.nodes[0]) + " [...]");
-    } else {
-        draw_text(20, 180, "nodes : "       + string(array_length(amodel_data.nodes)             ) + " : " + string(amodel_data.nodes)             );
-    }
-    draw_text(20, 200, "mat : "         + string(array_length(amodel_data.materials)         ) + " : " + string(amodel_data.materials)         );
-    draw_text(20, 220, "mesh : "        + string(array_length(amodel_data.meshes)            ) + " : " + string(amodel_data.meshes)            );
-    draw_text(20, 240, "tex : "         + string(array_length(amodel_data.textures)          ) + " : " + string(amodel_data.textures)          );
-    draw_text(20, 260, "images : "      + string(array_length(amodel_data.images)            ) + " : " + string(amodel_data.images)            );
-    if(array_length(amodel_data.accessors) > 4) {
-        draw_text(20, 280, "accessors : "   + string(array_length(amodel_data.accessors)         )  + " : " + string(amodel_data.accessors[0]) + " [...]");
-    } else {
-        draw_text(20, 280, "accessors : "   + string(array_length(amodel_data.accessors)         ) + " : " + string(amodel_data.accessors)         );
-    }
-    if(array_length(amodel_data.bufferViews) > 4) {
-        draw_text(20, 300, "bufferViews : " + string(array_length(amodel_data.bufferViews)       )  + " : " + string(amodel_data.bufferViews[0]) + " [...]");
-    } else {
-        draw_text(20, 300, "bufferViews : " + string(array_length(amodel_data.bufferViews)       ) + " : " + string(amodel_data.bufferViews)       );
-    }
-    draw_text(20, 320, "samplers : "    + string(array_length(amodel_data.samplers)          ) + " : " + string(amodel_data.samplers)          );
-    draw_text(20, 340, "buffers : "     + string(array_length(amodel_data.buffers)           ) + " : " + string(amodel_data.buffers)           );
-    if(array_length(amodel_data.animations) > 4) {
-        draw_text(20, 360, "amins : "       + string(array_length(amodel_data.animations)        )  + " : " + string(amodel_data.animations[0]) + " [...]");
-    } else {
-        draw_text(20, 360, "amins : "       + string(array_length(amodel_data.animations)        ) + " : " + string(amodel_data.animations)        );
-    }
-    draw_text(20, 380, "skins : "       + string(array_length(amodel_data.skins)             ) + " : " + string(amodel_data.skins)             );
-
-    if(amodel_data.has_errors()) {
-        draw_text(20, 420, "*** Errors *** : " + string(amodel_data.error));
-    } else {
-        draw_text(20, 420, "No Errors");
-    }
-    if(amodel_data.has_warnings()) {
-        draw_text(20, 440, "*** Warnings *** : " + string(amodel_data.warning));
-    } else {
-        draw_text(20, 440, "No Warnings");
-    }
-
-    if(is_array(self.files)) {
-        draw_text(20, 460, "*** Files *** : " + string(self.files));
-    } else {
-        draw_text(20, 460, "No Files");
+//draw_text(20, 40, "LookAt : " + string(lookat_x) + " x "  + string(lookat_y));
+draw_text(20, 40, "Virtual : " + string(virtual_width) + " x "  + string(virtual_height));
+if(amodelok) {
+    switch(gui_mode) {
+        case 0:
+            draw_text(20,  80, "asset : "       + string(amodel_data.asset)             );
+            draw_text(20, 100, "rexts : "       + string(array_length(amodel_data.extensionsRequired)) + " : " + string(amodel_data.extensionsRequired));
+            draw_text(20, 120, "uexts : "       + string(array_length(amodel_data.extensionsUsed)    ) + " : " + string(amodel_data.extensionsUsed)    );
+            draw_text(20, 140, "scene : "       + string(amodel_data.scene)             );
+            draw_text(20, 160, "scenes : "      + string(array_length(amodel_data.scenes)            ) + " : " + string(amodel_data.scenes)            );
+            if(array_length(amodel_data.nodes) > 4) {
+                draw_text(20, 180, "nodes : "       + string(array_length(amodel_data.nodes)             ) + " : " + string(amodel_data.nodes[0]) + " [...]");
+            } else {
+                draw_text(20, 180, "nodes : "       + string(array_length(amodel_data.nodes)             ) + " : " + string(amodel_data.nodes)             );
+            }
+            draw_text(20, 200, "mat : "         + string(array_length(amodel_data.materials)         ) + " : " + string(amodel_data.materials)         );
+            draw_text(20, 220, "mesh : "        + string(array_length(amodel_data.meshes)            ) + " : " + string(amodel_data.meshes)            );
+            draw_text(20, 240, "tex : "         + string(array_length(amodel_data.textures)          ) + " : " + string(amodel_data.textures)          );
+            draw_text(20, 260, "images : "      + string(array_length(amodel_data.images)            ) + " : " + string(amodel_data.images)            );
+            if(array_length(amodel_data.accessors) > 4) {
+                draw_text(20, 280, "accessors : "   + string(array_length(amodel_data.accessors)         )  + " : " + string(amodel_data.accessors[0]) + " [...]");
+            } else {
+                draw_text(20, 280, "accessors : "   + string(array_length(amodel_data.accessors)         ) + " : " + string(amodel_data.accessors)         );
+            }
+            if(array_length(amodel_data.bufferViews) > 4) {
+                draw_text(20, 300, "bufferViews : " + string(array_length(amodel_data.bufferViews)       )  + " : " + string(amodel_data.bufferViews[0]) + " [...]");
+            } else {
+                draw_text(20, 300, "bufferViews : " + string(array_length(amodel_data.bufferViews)       ) + " : " + string(amodel_data.bufferViews)       );
+            }
+            draw_text(20, 320, "samplers : "    + string(array_length(amodel_data.samplers)          ) + " : " + string(amodel_data.samplers)          );
+            draw_text(20, 340, "buffers : "     + string(array_length(amodel_data.buffers)           ) + " : " + string(amodel_data.buffers)           );
+            if(array_length(amodel_data.animations) > 4) {
+                draw_text(20, 360, "amins : "       + string(array_length(amodel_data.animations)        )  + " : " + string(amodel_data.animations[0]) + " [...]");
+            } else {
+                draw_text(20, 360, "amins : "       + string(array_length(amodel_data.animations)        ) + " : " + string(amodel_data.animations)        );
+            }
+            draw_text(20, 380, "skins : "       + string(array_length(amodel_data.skins)             ) + " : " + string(amodel_data.skins)             );
+        
+            if(amodel_data.has_errors()) {
+                draw_text(20, 420, "*** Errors *** : " + string(amodel_data.error));
+            } else {
+                draw_text(20, 420, "No Errors");
+            }
+            if(amodel_data.has_warnings()) {
+                draw_text(20, 440, "*** Warnings *** : " + string(amodel_data.warning));
+            } else {
+                draw_text(20, 440, "No Warnings");
+            }
+        
+            if(is_array(self.files)) {
+                draw_text(20, 460, "*** Files *** : " + string(self.files));
+            } else {
+                draw_text(20, 460, "No Files");
+            }
+            break;
+        case 1:
+            draw_text(20, 80, amodel.tree);
+            break;
+        case 2:
+            if(model_errors != "") {
+                draw_text(20, 80, model_errors);
+            }
+            break;
+    
     }
 
 }

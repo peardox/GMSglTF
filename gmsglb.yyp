@@ -44,6 +44,7 @@
     {"$GMIncludedFile":"","%Name":"ShadedCubeOffsetX30.json","CopyToMask":-1,"filePath":"datafiles/glb","name":"ShadedCubeOffsetX30.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"Skeleton_Warrior_Free.glb","CopyToMask":-1,"filePath":"datafiles/glb","name":"Skeleton_Warrior_Free.glb","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"Skeleton_Warrior.glb","CopyToMask":-1,"filePath":"datafiles/glb","name":"Skeleton_Warrior.glb","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
+    {"$GMIncludedFile":"","%Name":"Skeleton_Warrior.json","CopyToMask":-1,"filePath":"datafiles/glb","name":"Skeleton_Warrior.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"squirrel.glb","CopyToMask":-1,"filePath":"datafiles/glb","name":"squirrel.glb","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"squirrel.json","CopyToMask":-1,"filePath":"datafiles/glb","name":"squirrel.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"textured_1k_cube.glb","CopyToMask":-1,"filePath":"datafiles/glb","name":"textured_1k_cube.glb","resourceType":"GMIncludedFile","resourceVersion":"2.0",},

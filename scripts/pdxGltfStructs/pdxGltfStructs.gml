@@ -288,6 +288,7 @@ function pdxGltfData() : pdxGltfDataAbstractBase() constructor {
                                 self.textures = array_create(_al);
                                 for(var _i=0; _i< _al; _i++) {
                                     self.textures[_i] = new pdxGltfDataTexture();
+                                    self.textures[_i].init(_value[_i]);
                                 }
                                 break;
                             case "images":
@@ -322,6 +323,7 @@ function pdxGltfData() : pdxGltfDataAbstractBase() constructor {
                                 self.samplers = array_create(_al);
                                 for(var _i=0; _i< _al; _i++) {
                                     self.samplers[_i] = new pdxGltfDataSampler();
+                                    self.samplers[_i].init(_value[_i]);
                                 }
                                 break;
                             default:
@@ -442,6 +444,7 @@ function pdxGltfDataScene() : pdxGltfDataAbstractBase() constructor {
                 self.copy_extras(_value);
             }
         });
+
     }
 }
 
@@ -1031,6 +1034,48 @@ function pdxGltfDataSampler() : pdxGltfDataAbstractBase() constructor {
     self.wrapS                           = undefined;    // integer                         S (U) wrapping mode.                                    No, default: 10497
     self.wrapT                           = undefined;    // integer                         T (V) wrapping mode.                                    No, default: 10497
     self.name                            = undefined;    // string                          The user-defined name of this object.                   No
+    
+    static init = function(object) {
+        if(typeof(object) != "struct") {
+            self.critical("Type of node is " + typeof(object));
+        }
+        struct_foreach(object, function(_name, _value) {
+            if(_name == "name") {
+                if(!self.copy_string("name", _value)) {
+                    self.add_error("sampler name is not a string");
+                }
+            } else if(_name == "magFilter") { 
+                if(!self.copy_integer("magFilter", _value)) {
+                    self.add_error("sampler element magFilter is not an integer");
+                }
+            } else if(_name == "minFilter") { 
+                if(!self.copy_integer("minFilter", _value)) {
+                    self.add_error("sampler element minFilter is not an integer");
+                }
+            } else if(_name == "wrapS") { 
+                if(!self.copy_integer("wrapS", _value)) {
+                    self.add_error("sampler element wrapS is not an integer");
+                }
+            } else if(_name == "wrapT") { 
+                if(!self.copy_integer("wrapT", _value)) {
+                    self.add_error("sampler element wrapT is not an integer");
+                }
+            } else if(_name == "extensions") {
+                self.copy_extensions(_value);
+            } else if(_name == "extras") {
+                self.copy_extras(_value);
+            }
+            
+            } );
+        
+        if(is_undefined(self.wrapS)) {
+            self.wrapS = 10497;
+        }
+        if(is_undefined(self.wrapT)) {
+            self.wrapT = 10497;
+        }
+        
+    }     
 }
 
 function pdxGltfDataAccessor() : pdxGltfDataAbstractBase() constructor {
@@ -1288,6 +1333,33 @@ function pdxGltfDataTexture() : pdxGltfDataAbstractBase() constructor {
     self.sampler                         = undefined;    // integer                         The index of the sampler used by this texture           No
     self.source                          = undefined;    // integer                         The index of the image used by this texture             No
     self.name                            = undefined;    // string                          The user-defined name of this object.                   No
+
+    static init = function(object) {
+        if(typeof(object) != "struct") {
+            self.critical("Type of node is " + typeof(object));
+        }
+        struct_foreach(object, function(_name, _value) {
+            if(_name == "name") {
+                if(!self.copy_string("name", _value)) {
+                    self.add_error("texture name is not a string");
+                }
+            } else if(_name == "sampler") { 
+                if(!self.copy_integer("sampler", _value)) {
+                    self.add_error("texture element sampler is not an integer");
+                }
+            } else if(_name == "source") { 
+                if(!self.copy_integer("source", _value)) {
+                    self.add_error("texture element source is not an integer");
+                }
+            } else if(_name == "extensions") {
+                self.copy_extensions(_value);
+            } else if(_name == "extras") {
+                self.copy_extras(_value);
+            }
+            
+            } );
+        
+    }
 }
 
 function pdxGltfDataAccessorSparse() : pdxGltfDataAbstractBase() constructor {

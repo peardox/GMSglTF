@@ -9,7 +9,7 @@ amodelok = false;
 sprites = undefined;
 tfps = 0;
 nfps = 0;
-show_stats = true;
+gui_mode = 0;
 // amodel = new pdxGLB();
 //amodel = new pdxGLTF();
 var _fn = "glb/textured_1k_cube.glb";
@@ -33,19 +33,26 @@ _fn = "glb/dice.glb";
 _fn = "glb/ancient_desert_arena.glb";
 _fn = "glb/d6.glb";
 _fn = "glb/d20.glb";
+_fn = "gltf/chess_set_1k.gltf";
 */
 
 _fn = "glb/basic_cube.glb";
-_fn = "glb/dice.glb";
 _fn = "glb/ShadedCube.glb";
-_fn = "gltf/chess_set_1k.gltf";
+_fn = "glb/d20.glb";
+
 wd = "C:\\src\\GMSglTF\\datafiles\\";
 amodel = open_model(wd + _fn);
+model_errors = "";
 //amodel = open_model(working_directory + _fn);
 if(amodel) {
     amodel.read();
     amodel.build();
     amodelok = true;
+    
+    model_errors = amodel.gather_errors();
+    if(amodel.errval) {
+        gui_mode = 2;
+    }
 
 }
 
