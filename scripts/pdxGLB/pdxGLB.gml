@@ -230,6 +230,24 @@ function pdxGLTFBase(): pdxModelFile() constructor {
                 self.add_tree(string_repeat(" ", depth * TABSIZE) + "TEXCOORD_" + string(_i) + " : " + string(attributes.texcoord[_i]) + "\n");
             }
         }
+        if(struct_has(attributes, "color")) {
+            var _al = array_length(attributes.texcoord);
+            for(var _i=0; _i< _al; _i++) {
+                self.add_tree(string_repeat(" ", depth * TABSIZE) + "COLOR_" + string(_i) + " : " + string(attributes.color[_i]) + "\n");
+            }
+        }
+        if(struct_has(attributes, "joints")) {
+            var _al = array_length(attributes.joints);
+            for(var _i=0; _i< _al; _i++) {
+                self.add_tree(string_repeat(" ", depth * TABSIZE) + "JOINTS_" + string(_i) + " : " + string(attributes.joints[_i]) + "\n");
+            }
+        }
+        if(struct_has(attributes, "weights")) {
+            var _al = array_length(attributes.weights);
+            for(var _i=0; _i< _al; _i++) {
+                self.add_tree(string_repeat(" ", depth * TABSIZE) + "WEIGHTS_" + string(_i) + " : " + string(attributes.weights[_i]) + "\n");
+            }
+        }
     }
     
     static process_primitive = function(primitive, depth = 0) {
@@ -242,6 +260,12 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         }
         if(struct_has(primitive, "material")) {
             self.add_tree(string_repeat(" ", depth * TABSIZE) + "material : " + string(primitive.material) + "\n");
+        }
+        if(struct_has(primitive, "mode")) {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "mode     : " + string(primitive.mode) + "\n");
+        }
+        if(struct_has(primitive, "targets")) {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "targets  : " + string(primitive.targets) + "\n");
         }
     }
     
