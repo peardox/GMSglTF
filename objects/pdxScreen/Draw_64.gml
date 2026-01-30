@@ -1,10 +1,8 @@
 tfps += fps_real;
 nfps++;
-if(global.pdxGltfUseData)  {
-    amodel_data = amodel.data;
-} else {
-    amodel_data = amodel;    
-}
+
+amodel_data = amodel.data;
+
 
 
 draw_set_colour(c_yellow);
