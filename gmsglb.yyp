@@ -19,6 +19,8 @@
     {"$GMIncludedFile":"","%Name":"assetforge-door.json","CopyToMask":-1,"filePath":"datafiles/glb","name":"assetforge-door.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"basic_cube.glb","CopyToMask":-1,"filePath":"datafiles/glb","name":"basic_cube.glb","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"basic_cube.json","CopyToMask":-1,"filePath":"datafiles/glb","name":"basic_cube.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
+    {"$GMIncludedFile":"","%Name":"chubbycat.glb","CopyToMask":-1,"filePath":"datafiles/glb","name":"chubbycat.glb","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
+    {"$GMIncludedFile":"","%Name":"chubbycat.json","CopyToMask":-1,"filePath":"datafiles/glb","name":"chubbycat.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"cube_pyramid.glb","CopyToMask":-1,"filePath":"datafiles/glb","name":"cube_pyramid.glb","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"cube_pyramid.json","CopyToMask":-1,"filePath":"datafiles/glb","name":"cube_pyramid.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"CubeRotateTranslate.glb","CopyToMask":-1,"filePath":"datafiles/glb","name":"CubeRotateTranslate.glb","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
@@ -136,7 +138,7 @@
   "resources":[
     {"id":{"name":"pdxScreen","path":"objects/pdxScreen/pdxScreen.yy",},},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
-    {"id":{"name":"pdxGLB","path":"scripts/pdxGLB/pdxGLB.yy",},},
+    {"id":{"name":"pdxGltf","path":"scripts/pdxGltf/pdxGltf.yy",},},
     {"id":{"name":"pdxGltfStructs","path":"scripts/pdxGltfStructs/pdxGltfStructs.yy",},},
     {"id":{"name":"pdxSupport","path":"scripts/pdxSupport/pdxSupport.yy",},},
   ],

@@ -73,10 +73,19 @@ if(amodelok) {
             break;
         case 1:
             draw_text(20, 80, amodel.tree);
+
             break;
         case 2:
             if(model_errors != "") {
                 draw_text(20, 80, model_errors);
+            }
+            if(amodel.has_errors()) {
+                draw_text(800, 40, "Error");
+                draw_text(800, 80, amodel.error);
+            }
+            if(amodel.has_warnings()) {
+                draw_text(1600, 40, "Warning");
+                draw_text(1600, 80, amodel.warning);
             }
             break;
     

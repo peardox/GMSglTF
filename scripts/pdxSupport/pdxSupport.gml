@@ -80,7 +80,7 @@ function pdxException() constructor {
     }
     
     static add_warning = function(errmsg) {
-        if(!struct_exists(self, "error")) {
+        if(!struct_exists(self, "warning")) {
             self.warning = "";
             global.pdxGlobalGltfWarningFlag = true;
         }
@@ -224,7 +224,7 @@ function open_model(filename) {
     var _parts = get_file_parts(filename);
         
     if(_parts.extension == "glb") {
-        _amodel = new pdxGLB();
+        _amodel = new pdxGltf();
         if(_amodel.open(_parts.path, _parts.name, _parts.filebase)) {
             _rval = _amodel;
         } else {

@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"pdxGLB",
+  "%Name":"pdxGltf",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"pdxGLB",
+  "name":"pdxGltf",
   "parent":{
     "name":"gmsglb",
     "path":"gmsglb.yyp",

@@ -1,3 +1,5 @@
+#macro USE_DEFAULTS false
+
 enum gltfVariableType {
     integer,
     float,
@@ -13,6 +15,7 @@ enum gltfChunk {
 }
 
 enum gltfAccessorType {
+    UNKNOWN = -1,
     SCALAR,
     VEC2,
     VEC3,
@@ -23,12 +26,12 @@ enum gltfAccessorType {
 }
 
 enum gltfComponentType {
-    s8      = 5120,   //    signed byte     Signed, 2’s comp     8
-    u8      = 5121,   //    unsigned byte   Unsigned             8
-    s16     = 5122,   //    signed short    Signed, 2’s comp    16
-    u16     = 5123,   //    unsigned short  Unsigned            16
-    u32     = 5125,   //    unsigned int    Unsigned            32
-    float   = 5126    //    float           Signed              32
+    BYTE               = 5120,   //    signed byte     Signed, 2’s comp     8
+    UNSIGNED_BYTE      = 5121,   //    unsigned byte   Unsigned             8
+    SHORT              = 5122,   //    signed short    Signed, 2’s comp    16
+    UNSIGNED_SHORT     = 5123,   //    unsigned short  Unsigned            16
+    UNSIGNED_INT       = 5125,   //    unsigned int    Unsigned            32
+    FLOAT              = 5126    //    float           Signed              32
 }
 
 enum gltfMeshPrimitiveMode {
@@ -449,16 +452,16 @@ function pdxGltfDataScene() : pdxGltfDataAbstractBase() constructor {
 }
 
 function pdxGltfDataNode() : pdxGltfDataAbstractBase() constructor {
-    self.camera                          = undefined;    // integer                         The index of the camera referenced by this node.        No
-    self.children                        = undefined;    // integer [1-*]                   The indices of this node’s children.                    No
-    self.skin                            = undefined;    // integer                         The index of the skin referenced by this node.          No
-    self.matrix                          = undefined;    // number [16]                     A floating-point 4x4 transformation matrix              No, default: [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]
+    self.name                            = undefined;    // string                          The user-defined name of this object.                   No
+    self.children                        = undefined;    // integer [1-*]                   The indices of this node’s children.                    No, default: [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]
     self.mesh                            = undefined;    // integer                         The index of the mesh in this node.                     No
+    self.camera                          = undefined;    // integer                         The index of the camera referenced by this node.        No
+    self.skin                            = undefined;    // integer                         The index of the skin referenced by this node.          No
+    self.matrix                          = undefined;    // number [16]                     A floating-point 4x4 transformation matrix              No
     self.rotation                        = undefined;    // number [4]                      The node’s unit quaternion rotation (x, y, z, w)        No, default: [0,0,0,1]
     self.scale                           = undefined;    // number [3]                      The node’s non-uniform scale along x, y, and z          No, default: [1,1,1]
     self.translation                     = undefined;    // number [3]                      The node’s translation along the x, y, and z axes.      No, default: [0,0,0]
     self.weights                         = undefined;    // number [1-*]                    The weights of the instantiated morph target.           No
-    self.name                            = undefined;    // string                          The user-defined name of this object.                   No
 
     static init = function(object) {
         if(typeof(object) != "struct") {
@@ -520,19 +523,21 @@ function pdxGltfDataNode() : pdxGltfDataAbstractBase() constructor {
             
             
         });
-        
-        if(is_undefined(self.matrix)) {
-            self.matrix = [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];
-        }
-        if(is_undefined(self.rotation)) {
-            self.rotation = [0,0,0,1];
-        }
-        if(is_undefined(self.scale)) {
-            self.scale = [1,1,1];
-        }
-        if(is_undefined(self.translation)) {
-            self.translation = [0,0,0];
-        }
+		
+        if(USE_DEFAULTS) {
+	        if(is_undefined(self.matrix)) {
+	            self.matrix = [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];
+	        }
+	        if(is_undefined(self.rotation)) {
+	            self.rotation = [0,0,0,1];
+	        }
+	        if(is_undefined(self.scale)) {
+	            self.scale = [1,1,1];
+	        }
+	        if(is_undefined(self.translation)) {
+	            self.translation = [0,0,0];
+	        }
+		}
         
     }
 }
@@ -1134,10 +1139,8 @@ function pdxGltfDataAccessor() : pdxGltfDataAbstractBase() constructor {
                     self.add_error("Bad Array for accessor element max");
                 }
             } else if(_name == "sparse") { 
-                if(!self.copy_array("sparse", _value, "struct")) {
-                    self.add_error("Bad Array for node element matrix");
-                }
-                self.critical("Unhandled SPARSE");
+                self.sparse = new pdxGltfDataAccessorSparse();
+                self.sparse.init(_value);
             } else if(_name == "extensions") {
                 self.copy_extensions(_value);
             } else if(_name == "extras") {
@@ -1366,17 +1369,125 @@ function pdxGltfDataAccessorSparse() : pdxGltfDataAbstractBase() constructor {
     self.count                           = undefined;    // integer                         Number of deviating accessor vals in the sparse array   Yes
     self.indices                         = undefined;    // accessor.sparse.indices         An object pointing to a buffer view of indices          Yes
     self.values                          = undefined;    // accessor.sparse.values          An object pointing to a buffer view of values           Yes
+    
+    static init = function(object) {
+        if(typeof(object) != "struct") {
+            self.critical("Type of node is " + typeof(object));
+        }
+        struct_foreach(object, function(_name, _value) {
+            if(_name == "count") {
+                if(!self.copy_integer("count", _value)) {
+                    self.add_error("accessor.sparse element count is not an integer");
+                }
+            } else if(_name == "indices") { 
+                if(typeof(_value) == "struct") {
+                    self.indices = new pdxGltfDataAccessorSparseIndices();
+                    self.indices.init(_value);
+                } else {
+                    self.add_error("accessor.sparse element indices is not a struct");
+                }
+            } else if(_name == "values") { 
+                if(typeof(_value) == "struct") {
+                    self.values = new pdxGltfDataAccessorSparseValues();
+                    self.values.init(_value);
+                } else {
+                    self.add_error("accessor.values element indices is not a struct");
+                }
+            } else if(_name == "extensions") {
+                self.copy_extensions(_value);
+            } else if(_name == "extras") {
+                self.copy_extras(_value);
+            }
+            
+            } );
+        
+        if(is_undefined(self.count)) {
+            self.critical("sparse count not set");
+        }
+        if(is_undefined(self.indices)) {
+            self.critical("sparse indicies not set");
+        }
+        if(is_undefined(self.values)) {
+            self.critical("sparse values not set");
+        }
+    }        
+    
+
 }
 
 function pdxGltfDataAccessorSparseIndices() : pdxGltfDataAbstractBase() constructor {
     self.bufferView                      = undefined;    // integer                         The index of the buffer view with sparse indices        Yes
     self.byteOffset                      = undefined;    // integer                         The offset relative to the start of the buffer view     No, default: 0
     self.componentType                   = undefined;    // integer                         The indices data type.                                  Yes
+
+    static init = function(object) {
+        if(typeof(object) != "struct") {
+            self.critical("Type of node is " + typeof(object));
+        }
+        struct_foreach(object, function(_name, _value) {
+            if(_name == "bufferView") {
+                if(!self.copy_integer("bufferView", _value)) {
+                    self.add_error("accessor.sparse.indicies element bufferView is not an integer");
+                }
+            } else if(_name == "byteOffset") {
+                if(!self.copy_integer("bufferView", _value)) {
+                    self.add_error("accessor.sparse.indicies element byteOffset is not an integer");
+                }
+            } else if(_name == "componentType") {
+                if(!self.copy_integer("componentType", _value)) {
+                    self.add_error("accessor.sparse.indicies element componentType is not an integer");
+                }
+            } else if(_name == "extensions") {
+                self.copy_extensions(_value);
+            } else if(_name == "extras") {
+                self.copy_extras(_value);
+            }
+            
+            } );
+        
+        if(is_undefined(self.byteOffset)) {
+            self.byteOffset = 0;
+        }
+        if(is_undefined(self.bufferView)) {
+            self.critical("sparse.indices bufferView not set");
+        }
+        if(is_undefined(self.componentType)) {
+            self.critical("sparse.indices componentType not set");
+        }
+    }
 }
 
 function pdxGltfDataAccessorSparseValues() : pdxGltfDataAbstractBase() constructor {
     self.bufferView                      = undefined;    // integer                         The index of the buffer view with sparse indices        Yes
     self.byteOffset                      = undefined;    // integer                         The offset relative to the start of the buffer view     No, default: 0
+
+    static init = function(object) {
+        if(typeof(object) != "struct") {
+            self.critical("Type of node is " + typeof(object));
+        }
+        struct_foreach(object, function(_name, _value) {
+            if(_name == "bufferView") {
+                if(!self.copy_integer("bufferView", _value)) {
+                    self.add_error("accessor.sparse.values element bufferView is not an integer");
+                }
+            } else if(_name == "byteOffset") {
+                if(!self.copy_integer("bufferView", _value)) {
+                    self.add_error("accessor.sparse.values element byteOffset is not an integer");
+                }
+            } else if(_name == "extensions") {
+                self.copy_extensions(_value);
+            } else if(_name == "extras") {
+                self.copy_extras(_value);
+            }
+            
+            } );
+        if(is_undefined(self.byteOffset)) {
+            self.byteOffset = 0;
+        }
+        if(is_undefined(self.bufferView)) {
+            self.critical("sparse.values bufferView not set");
+        }
+    }
 }
 
 

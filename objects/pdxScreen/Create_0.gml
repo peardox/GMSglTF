@@ -36,11 +36,16 @@ _fn = "glb/d20.glb";
 _fn = "gltf/chess_set_1k.gltf";
 */
 
-_fn = "glb/basic_cube.glb";
-_fn = "glb/ShadedCube.glb";
-_fn = "glb/d20.glb";
-
+// _fn = "glb/basic_cube.glb";
+ _fn = "glb/ShadedCube.glb";
+ _fn = "glb/d20.glb";
+_fn = "glb/rotate.glb"
+_fn = "glb/chubbycat.glb";
 wd = "C:\\src\\GMSglTF\\datafiles\\";
+
+//_fn = "FlightHelmet\\glTF-Binary\\FlightHelmet.glb";
+// wd = "C:\\git\\glTF-Sample-Assets\\Models\\";
+
 amodel = open_model(wd + _fn);
 model_errors = "";
 //amodel = open_model(working_directory + _fn);

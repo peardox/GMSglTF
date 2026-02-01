@@ -18,12 +18,12 @@ function pdxModelFile() : pdxException() constructor {
 }
 
 function pdxGLTFBase(): pdxModelFile() constructor {
-    self.json = "";
+    self.json = undefined;
     self.load_time = 0;
     self.read_time = 0;
     self.errval = false;
-
     self.data = undefined;
+
     self.tree = "";
     
     self.counts = {
@@ -73,14 +73,18 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     
     static load_external_buffers = function() {
         for(var _i = 0; _i < self.counts.buffers; _i++) {
-            if(struct_exists(self.buffers[_i], "uri")) {
-                if(!file_exists(self.filepath + self.buffers[_i].uri)) {
+            if(self.struct_has(self.data.buffers[_i], "uri")) {
+                if(string_starts_with(self.data.buffers[_i].uri, "data:")) {
+                    self.add_warning("ToDo : Buffer #" + string(_i) + " is a data uri");
+                    continue;
+                }
+                if(!file_exists(self.filepath + self.data.buffers[_i].uri)) {
                     self.critical("Exsternal data buffer bot found : " + self.filepath + self.buffers[_i].uri);
                 }
-                if(self.buffers[_i].data==undefined) {
-                    if(struct_exists(self.buffers[_i], "byteLength")) {
-                        self.buffers[_i].data = buffer_create(self.buffers[_i].byteLength, buffer_grow, 1);
-                        buffer_load_ext(self.buffers[_i].data, self.filepath + self.buffers[_i].uri, 0);
+                if(self.data.buffers[_i].data==undefined) {
+                    if(struct_has(self.data.buffers[_i], "byteLength")) {
+                        self.data.buffers[_i].data = buffer_create(self.data.buffers[_i].byteLength, buffer_grow, 1);
+                        buffer_load_ext(self.data.buffers[_i].data, self.filepath + self.data.buffers[_i].uri, 0);
                         
                     }
                 } else {
@@ -280,6 +284,13 @@ function pdxGLTFBase(): pdxModelFile() constructor {
                 self.process_primitive(mesh.primitives[_i], depth + 1);
             }
         }
+        
+        if(struct_has(mesh, "weights")) {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "weights : " + string(mesh.weights) + "\n");
+            self.add_warning("ToDo : Mesh weights not implemented yet");
+        }
+        
+        
     }
         
     static process_node = function(node, depth = 0) {
@@ -288,44 +299,204 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         }
         
         if(struct_has(node, "mesh")) {
-            self.process_mesh(self.data.meshes[node.mesh], depth + 1);
+            if(node.mesh < self.counts.meshes) {
+                self.process_mesh(self.data.meshes[node.mesh], depth + 1);
+            } else {
+                self.add_error("Bad mesh index (" + string(node.mesh) + ")");
+            }
         }
-        
         
         if(struct_has(node, "children")) {
             var _al = array_length(node.children);
             for(var _i = 0; _i < _al; _i++) {
                 var child = node.children[_i];
-                self.process_node(self.data.nodes[child], depth + 1);
+                if(child < self.counts.nodes) {
+                    self.process_node(self.data.nodes[child], depth + 1);
+                } else {
+                    self.add_error("Bad node index (" + string(child) + ")");
+                }
             }
+        }
+        
+        if(struct_has(node, "camera")) {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "camera : " + string(node.camera) + "\n");
+            self.add_warning("ToDo : Node camera not implemented yet");
+        }
+        
+        if(struct_has(node, "skin")) {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "skin : " + string(node.skin) + "\n");
+            self.add_warning("ToDo : Node skin not implemented yet");
+        }
+        
+        if(struct_has(node, "matrix")) {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "matrix : " + string(node.matrix) + "\n");
+            self.add_warning("ToDo : Node matrix not implemented yet");
+        }
+        
+        if(struct_has(node, "rotation")) {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "rotation : " + string(node.rotation) + "\n");
+            self.add_warning("ToDo : Node rotation not implemented yet : " +  + string(node.rotation));
+        }
+        
+        if(struct_has(node, "scale")) {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "scale : " + string(node.scale) + "\n");
+            self.add_warning("ToDo : Node scale not implemented yet");
+        }
+        
+        if(struct_has(node, "translation")) {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "translation : " + string(node.translation) + "\n");
+            self.add_warning("ToDo : Node translation not implemented yet");
+        }
+        
+        if(struct_has(node, "weights")) {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "weights : " + string(node.weights) + "\n");
+            self.add_warning("ToDo : Node weights not implemented yet");
         }
     }    
     
+    static process_scene = function(scene, depth = 0) {
+        if(struct_has(scene, "name")) {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "Scene : " + scene.name + "\n");
+        } else {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "Scene : <no name>\n");
+        }
+
+        if(struct_has(scene, "nodes")) {
+            var _al = array_length(scene.nodes);
+            for(var _i = 0; _i < _al; _i++) {
+                var _node = scene.nodes[_i];
+                if(_node < self.counts.nodes) {
+                    self.process_node(self.data.nodes[_node], depth + 1);
+                } else {
+                    self.add_error("Bad node index (" + string(_node) + ")");
+                }
+            }
+        }
+    }
+    
+    static processBufferView = function(bview, epth = 0) {
+        var buffer = -1;
+        var byteLength = -1;
+        var byteOffset = -1;
+        
+        if(struct_has(bview, "buffer")) {
+            buffer = bview.buffer;
+        }
+        if(struct_has(bview, "byteLength")) {
+            byteLength = bview.byteLength;
+        }
+        if(struct_has(bview, "byteOffset")) {
+            byteOffset = bview.byteOffset;
+        }
+    }
+    
+    static validateComponentType = function(value) {
+        switch(value) {
+            case gltfComponentType.BYTE:
+                return true;
+            case gltfComponentType.FLOAT:
+                return true;
+            case gltfComponentType.SHORT:
+                return true;
+            case gltfComponentType.UNSIGNED_BYTE:
+                return true;
+            case gltfComponentType.UNSIGNED_INT:
+                return true;
+            case gltfComponentType.UNSIGNED_SHORT:
+                return true;
+        }    
+        
+        return false;
+        
+    }
+
+    static gltfAccewssorTypeToEnum = function(value) {
+        switch(value) {
+            case "SCALAR":
+                return gltfAccessorType.SCALAR;
+            case "VEC2":
+                return gltfAccessorType.VEC2;
+            case "VEC3":
+                return gltfAccessorType.VEC3;
+            case "VEC4":
+                return gltfAccessorType.VEC4;
+            case "MAT2":
+                return gltfAccessorType.MAT2;
+            case "MAT3":
+                return gltfAccessorType.MAT3;
+            case "MAT4":
+                return gltfAccessorType.MAT4;
+        }
+        return gltfAccessorType.UNKNOWN;
+    }
+        
+    static processAccessor = function(accessor, epth = 0) {
+        // All three of these are REQUIRED but MAY be missing
+        if(struct_has(accessor, "componentType") && struct_has(accessor, "count") && struct_has(accessor, "type")) {
+            if(struct_has(accessor, "sparse")) {
+                self.add_warning("ToDo : Sparse accessor not implemented yet");
+            } else {
+                if(struct_has(accessor, "bufferView")) {
+                    var buffer = 0;
+                    var type = gltfAccewssorTypeToEnum(accessor.type);
+                    
+                    if(struct_has(accessor, "buffer")) {
+                        buffer = accessor.buffer;
+                    }
+                    
+                    if(type != gltfAccessorType.UNKNOWN) {
+                        
+                    } else {
+                        self.critical("Unknown accessor type");
+                    }
+                
+                    
+                } else {
+                    self.add_error("Bad accessor missing OPTIONAL bufferView ???");
+                }
+            }
+            
+        } else {
+            self.add_error("Bad accessor missing REQUIRED value(s)");
+        }
+    }
+
+    
+    static processAllAccessors = function(depth = 0) {
+        var _al = array_length(self.data.accessors);
+        for(var _i = 0; _i < _al; _i++) {
+            self.processAccessor(self.data.accessors[_i]);
+        }
+    }
+    
     static build = function() {
         self.tree = "";
+        
+        // First create counts of all the main arrays
         self.create_counts();
         
+        // Next we run some sanity checks        
         if(is_int(self.data.scene)) {
             if(self.counts.scenes == 0) {
                 return false;
             }
             if(self.counts.nodes == 0) {
                 return false;
-            } 
-
-            if(self.data.scene < self.counts.scenes) {
-                var _scene = self.data.scenes[self.data.scene];
-                var _scene_nodes = array_length(_scene.nodes);
-                for(var _n = 0; _n<_scene_nodes; _n++) {
-                    var _node_index = _scene.nodes[_n];
-                    if(_node_index < self.counts.nodes) {
-                        var _node = self.data.nodes[_node_index];
-                        self.process_node(_node);
-                    }
-                }
             }
+        }     
+        
+        // Now read/decode all bufferViews + buffers
+        if(self.counts.bufferViews > 0) {
+            self.processAllAccessors();
         }
         
+        // Finally build scene(s)       
+        if(self.data.scene < self.counts.scenes) {
+            var _scene = self.data.scenes[self.data.scene];
+            self.process_scene(_scene);
+        }
+        
+        return true;        
     }
 
 }
@@ -343,17 +514,23 @@ function pdxGLTF(): pdxGLTFBase() constructor {
         if(_bsize > 0) {
             var _json_txt = buffer_read(_buffer, buffer_string);
             self.json = json_parse(_json_txt);
-            
-            self.data = new pdxGltfData();
-            self.data.init(self.json);
         }
         buffer_delete(_buffer);
         
-        self.load_external_buffers();
+        if(!is_undefined(self.json)) {
+            self.data = new pdxGltfData();
+            self.data.init(self.json);
+            self.load_external_buffers();
+            self.load_time = get_timer() - self.load_time;
+            
+            return true;
+        }
     }
+    
+    return false;
 } 
 
-function pdxGLB(): pdxGLTFBase() constructor {
+function pdxGltf(): pdxGLTFBase() constructor {
     self.bufcount = 0;
     self.binbuffers = array_create(1);
     
@@ -396,14 +573,11 @@ function pdxGLB(): pdxGLTFBase() constructor {
                         buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, _tempbuf1, 0);
                         var _json_txt = buffer_read(_tempbuf1, buffer_string);
                         self.json = json_parse(_json_txt);
-                        
-                        self.data = new pdxGltfData();
-                        self.data.init(self.json);
-
                         var _outfile = self.filepath + self.filebase + ".json";
                         if(!file_exists(_outfile)) {
                             buffer_save_ext(_tempbuf1, _outfile, 0, _chunk_length);
                         }
+                        
                         buffer_seek(_buffer, buffer_seek_relative, _chunk_length);
                         buffer_delete(_tempbuf1);
                         
@@ -416,12 +590,14 @@ function pdxGLB(): pdxGLTFBase() constructor {
                         self.binbuffers[0] = buffer_create(_chunk_length, buffer_fixed, 1);
                         buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, self.binbuffers[0], 0);
                         // Do stuff with tempobuf2
+                        /*
                         if(self.filename == "world.glb") {
                             var _al = array_length(self.images);
                             array_resize(self.images, _al + 1)
                             self.images[_al] = new pdxImage();
                             self.images[_al].load_from_buffer(self.binbuffers[0], 69248, 1337486, "tex_world");
                         }
+                        */
                         buffer_seek(_buffer, buffer_seek_relative, _chunk_length);
                         break;
                     default:
@@ -434,11 +610,18 @@ function pdxGLB(): pdxGLTFBase() constructor {
         }
         buffer_delete(_buffer);
         
-        self.load_external_buffers();
-        
-        self.load_time = get_timer() - self.load_time;
 
-        return true;
+        if(!is_undefined(self.json)) {
+            self.data = new pdxGltfData();
+            self.data.init(self.json);
+            self.load_external_buffers();
+            self.load_time = get_timer() - self.load_time;
+            
+            return true;
+        }
+        
+        return false;
+
     }
     
 }
