@@ -135,7 +135,7 @@ function pdxImage() : pdxException() constructor {
     static load_from_buffer = function(inbuf, buffer_offset, buffer_length, texturegoup) {
         // Before we do anything check the buffer is a buffer and it has spave for the image to read
         if(!buffer_exists(inbuf)) {
-            self.add_error("Buffer down not exist");
+            self.add_error("Buffer does not exist");
             return false;    
         }
         if( buffer_get_size(inbuf) < (buffer_offset + buffer_length) ) {

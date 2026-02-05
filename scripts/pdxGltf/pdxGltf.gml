@@ -21,8 +21,14 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     self.json = undefined;
     self.load_time = 0;
     self.read_time = 0;
+    self.process_time = 0;
     self.errval = false;
     self.data = undefined;
+
+    self.accessorData = undefined;
+    self.bufferData = undefined;
+    self.imagesData = undefined;
+
 
     self.tree = "";
     
@@ -69,32 +75,6 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         self.counts.skins =              self.get_count(self.data, "skins");
         self.counts.cameras =            self.get_count(self.data, "cameras");
         self.counts.images =             self.get_count(self.data, "images");
-    }
-    
-    static load_external_buffers = function() {
-        for(var _i = 0; _i < self.counts.buffers; _i++) {
-            if(self.struct_has(self.data.buffers[_i], "uri")) {
-                if(string_starts_with(self.data.buffers[_i].uri, "data:")) {
-                    self.add_warning("ToDo : Buffer #" + string(_i) + " is a data uri");
-                    continue;
-                }
-                if(!file_exists(self.filepath + self.data.buffers[_i].uri)) {
-                    self.critical("Exsternal data buffer bot found : " + self.filepath + self.buffers[_i].uri);
-                }
-                if(self.data.buffers[_i].data==undefined) {
-                    if(struct_has(self.data.buffers[_i], "byteLength")) {
-                        self.data.buffers[_i].data = buffer_create(self.data.buffers[_i].byteLength, buffer_grow, 1);
-                        buffer_load_ext(self.data.buffers[_i].data, self.filepath + self.data.buffers[_i].uri, 0);
-                        
-                    }
-                } else {
-                    self.add_warning("Buffer #" + string(_i) + " already contains data");
-                }
-            }
-        }
-    }
-    
-    static free = function() {
     }
     
     static gather_errors = function() {
@@ -206,6 +186,34 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     static add_tree = function(txt) {
         self.tree += txt;
     }
+
+    static free = function() {
+    }
+    
+    static load_uri_buffer = function(uri) {
+        var rval = -1;
+        
+        if(string_starts_with(uri, "data:")) {
+            var temp = string_split(uri, ",", true, 1);
+            if(array_length(temp) == 2) {
+                rval = buffer_base64_decode(temp[1]);
+            }
+        } else {
+            if(file_exists(self.filepath + uri)) {
+                rval = buffer_create(0, buffer_grow, 1);
+                if(buffer_exists(rval)) {
+                    buffer_load_ext(rval, self.filepath + uri, 0);
+                } else {
+                    rval = -1;
+                }
+            } else {
+                self.add_error("File not found : " + uri);
+            }
+        }
+        
+        return rval;
+    }
+    
     static struct_has = function(object, key) {
         if(struct_exists(object, key)) {
             if(is_undefined(object[$ key])) {
@@ -374,102 +382,197 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         }
     }
     
-    static processBufferView = function(bview, epth = 0) {
-        var buffer = -1;
-        var byteLength = -1;
-        var byteOffset = -1;
-        
-        if(struct_has(bview, "buffer")) {
-            buffer = bview.buffer;
-        }
-        if(struct_has(bview, "byteLength")) {
-            byteLength = bview.byteLength;
-        }
-        if(struct_has(bview, "byteOffset")) {
-            byteOffset = bview.byteOffset;
-        }
-    }
-    
-    static validateComponentType = function(value) {
-        switch(value) {
-            case gltfComponentType.BYTE:
-                return true;
-            case gltfComponentType.FLOAT:
-                return true;
-            case gltfComponentType.SHORT:
-                return true;
-            case gltfComponentType.UNSIGNED_BYTE:
-                return true;
-            case gltfComponentType.UNSIGNED_INT:
-                return true;
-            case gltfComponentType.UNSIGNED_SHORT:
-                return true;
-        }    
-        
-        return false;
+
+
+    /*
+    self.bufferView                      = undefined;    // integer                         The index of the bufferView.                            No
+    self.byteOffset                      = undefined;    // integer                         The offset relative to the start of the buffer view     No, default: 0
+    self.componentType                   = undefined;    // integer                         The datatype of the accessor’s components.              Yes
+    self.normalized                      = undefined;    // boolean                         Integer values are normalized before usage.             No, default: false
+    self.count                           = undefined;    // integer                         The number of elements referenced by this accessor.     Yes
+    self.type                            = undefined;    // string                          Specifies the accessor’s type                           Yes
+    self.max                             = undefined;    // number [1-16]                   Maximum value of each component in this accessor.       No
+    self.min                             = undefined;    // number [1-16]                   Minimum value of each component in this accessor.       No
+    self.sparse                          = undefined;    // accessor.sparse                 Sparse storage of elements that deviate.                No
+    self.name                            = undefined;    // string                          The user-defined name of this object.                   No
+    */
+            
+    static decodeAccessor = function() {
         
     }
 
-    static gltfAccewssorTypeToEnum = function(value) {
-        switch(value) {
+    static createVariableType = function(type, count, componentType) {
+        var value;
+        switch(type) {
             case "SCALAR":
-                return gltfAccessorType.SCALAR;
+                value = new pdxGltfDataValueScalar(count, componentType);
+                break;
             case "VEC2":
-                return gltfAccessorType.VEC2;
+                value = new pdxGltfDataValueVector2(count, componentType);
+                break;
             case "VEC3":
-                return gltfAccessorType.VEC3;
+                value = new pdxGltfDataValueVector3(count, componentType);
+                break;
             case "VEC4":
-                return gltfAccessorType.VEC4;
+                value = new pdxGltfDataValueVector4(count, componentType);
+                break;
             case "MAT2":
-                return gltfAccessorType.MAT2;
+                value = new pdxGltfDataValueMatrix2(count, componentType);
+                break;
             case "MAT3":
-                return gltfAccessorType.MAT3;
+                value = new pdxGltfDataValueMatrix3(count, componentType);
+                break;
             case "MAT4":
-                return gltfAccessorType.MAT4;
-        }
-        return gltfAccessorType.UNKNOWN;
-    }
-        
-    static processAccessor = function(accessor, epth = 0) {
-        // All three of these are REQUIRED but MAY be missing
-        if(struct_has(accessor, "componentType") && struct_has(accessor, "count") && struct_has(accessor, "type")) {
-            if(struct_has(accessor, "sparse")) {
-                self.add_warning("ToDo : Sparse accessor not implemented yet");
+                value = new pdxGltfDataValueMatrix4(count, componentType);
+                break;
+            default:
+                self.critical("Unknown accessor type");
+                break;
+        }                
+        return value;
+    }   
+     
+    static processAccessor = function(accessor, index) {
+        var new_struct = self.createVariableType(accessor.type, accessor.count, accessor.componentType);
+        if(struct_has(accessor, "bufferView")) {
+            // If we have a bufferView read it in
+            var view = self.data.bufferViews[accessor.bufferView];
+            if(view.buffer < self.counts.bufferViews) {
+                var buffer = self.bufferData[view.buffer];
+                new_struct.read(buffer, view, accessor.byteOffset);
             } else {
-                if(struct_has(accessor, "bufferView")) {
-                    var buffer = 0;
-                    var type = gltfAccewssorTypeToEnum(accessor.type);
-                    
-                    if(struct_has(accessor, "buffer")) {
-                        buffer = accessor.buffer;
-                    }
-                    
-                    if(type != gltfAccessorType.UNKNOWN) {
-                        
-                    } else {
-                        self.critical("Unknown accessor type");
-                    }
-                
-                    
+                self.critical("Attempt to read out-of-bound bufferView");
+            }
+
+        } else {
+            // With no bufferview initialise with zeros
+            new_struct.init();
+        }
+  
+        // Needs checking  
+        if(struct_has(accessor, "sparse")) {
+            new_struct.addSparse(accessor.sparse.count);
+
+            new_struct.sparse.indices = self.createVariableType("SCALAR", accessor.sparse.count, accessor.sparse.indices.componentType);
+            var sview1 = self.data.bufferViews[accessor.sparse.indices.bufferView];
+            var buffer1 = self.bufferData[sview1.buffer];
+            new_struct.sparse.indices.read(buffer1, sview1, accessor.byteOffset);
+
+            new_struct.sparse.values = self.createVariableType(accessor.type, accessor.sparse.count, accessor.componentType);
+            var sview2 = self.data.bufferViews[accessor.sparse.values.bufferView];
+            var buffer2 = self.bufferData[sview2.buffer];
+            new_struct.sparse.values.read(buffer2, sview2, accessor.byteOffset);
+            
+            // new_struct.applySparse();
+            
+        }
+        
+        self.accessorData[index] = new_struct;
+    }
+
+    
+    static processAccessors = function(depth = 0) {
+        var _al = array_length(self.data.accessors);
+        if(is_undefined(self.accessorData)) {
+            self.accessorData = array_create(_al, undefined);
+        }
+        for(var _i = 0; _i < _al; _i++) {
+            self.processAccessor(self.data.accessors[_i], _i);
+        }
+    }
+    
+    static processImage = function(image, index) {
+        var temp;
+        if(struct_has(image, "uri")) {
+            // If the image has a uri then we can read it from the file specified
+            temp = self.load_uri_buffer(image.uri);
+            if(buffer_exists(temp)) {
+                self.imagesData[index] = temp;
+            }
+        } else {
+            // Otherwise the image is in  BufferView
+            show_debug_message("Buffered image");
+            /*
+            if(struct_exists(self, "binbuffer")) {
+                if(!is_undefined(self.binbuffer)) {
+                    // Re-assign the buffer reference
+                    self.bufferdata[index] = self.binbuffer;
+                    // This buffer has been transferred to buffers[_i] so remore the reference
+                    // This will a;lso signify to the caller that the binary buffer from the 
+                    // GLB has been re-assigned to a buffer
+                    self.binbuffer = undefined;
                 } else {
-                    self.add_error("Bad accessor missing OPTIONAL bufferView ???");
+                    self.critical("GLB binary buffer already used")
                 }
             }
-            
-        } else {
-            self.add_error("Bad accessor missing REQUIRED value(s)");
+             */
         }
     }
-
     
-    static processAllAccessors = function(depth = 0) {
-        var _al = array_length(self.data.accessors);
-        for(var _i = 0; _i < _al; _i++) {
-            self.processAccessor(self.data.accessors[_i]);
+
+    static processImages = function(depth = 0) {
+        var _al = array_length(self.data.images);
+        if(is_undefined(self.imagesData)) {
+            self.imagesData = array_create(_al, undefined);
         }
+        for(var _i = 0; _i < _al; _i++) {
+            self.processImage(self.data.images[_i], _i);
+        }
+    }
+    /*
+    static processBufferView = function(view) {
+        
+    }
+
+    static processBufferViews = function(depth = 0) {
+        var _al = array_length(self.data.bufferViews);
+        for(var _i = 0; _i < _al; _i++) {
+            self.processBufferView(self.data.bufferViews[_i]);
+        }
+    }
+    */
+    static processBuffer = function(buffer, index) {
+        if(struct_has(buffer, "uri")) {
+            // If the buffer has a uri then we can read it from the file specified
+            var temp = self.load_uri_buffer(buffer.uri);
+            if(buffer_exists(temp)) {
+                self.bufferData[index] = temp;
+            }
+        } else {
+            // Otherwise it SHOULD have been embedded in the glb so re-assign that one
+            if(struct_exists(self, "binbuffer")) {
+                if(!is_undefined(self.binbuffer)) {
+                    // Re-assign the buffer reference
+                    self.bufferData[index] = self.binbuffer;
+                    // This buffer has been transferred to buffers[_i] so remore the reference
+                    // This will a;lso signify to the caller that the binary buffer from the 
+                    // GLB has been re-assigned to a buffer
+                    self.binbuffer = undefined;
+                } else {
+                    self.critical("GLB binary buffer already used")
+                }
+            }
+        }
+    }
+    
+    static processBuffers = function(depth = 0) {
+        var _al = array_length(self.data.buffers);
+        if(is_undefined(self.bufferData)) {
+            self.bufferData = array_create(_al, undefined);
+        }
+        for(var _i = 0; _i < _al; _i++) {
+            self.processBuffer(self.data.buffers[_i], _i);
+        }
+        if(struct_exists(self, "binbuffer")) {
+            // binbuffer only exists for GLB. Check that if it existed it has been consumed
+            if(!is_undefined(self.binbuffer)) {
+                self.add_error("GLB buffer not used");
+            }
+         }
     }
     
     static build = function() {
+        self.process_time = get_timer();
         self.tree = "";
         
         // First create counts of all the main arrays
@@ -485,18 +588,29 @@ function pdxGLTFBase(): pdxModelFile() constructor {
             }
         }     
         
-        // Now read/decode all bufferViews + buffers
-        if(self.counts.bufferViews > 0) {
-            self.processAllAccessors();
+        // Fill the buffers from declared sources
+        if(self.counts.buffers > 0) {
+            self.processBuffers();
         }
         
+        // Fill the buffers from declared sources
+        if(self.counts.images > 0) {
+            self.processImages();
+        }
+        
+        // Now read/decode all bufferViews + buffers
+        if(self.counts.accessors > 0) {
+            self.processAccessors();
+        }
+         
         // Finally build scene(s)       
         if(self.data.scene < self.counts.scenes) {
             var _scene = self.data.scenes[self.data.scene];
             self.process_scene(_scene);
         }
         
-        return true;        
+        self.process_time = get_timer() - self.process_time;
+        return true;
     }
 
 }
@@ -518,9 +632,8 @@ function pdxGLTF(): pdxGLTFBase() constructor {
         buffer_delete(_buffer);
         
         if(!is_undefined(self.json)) {
-            self.data = new pdxGltfData();
+            self.data = new pdxGltfDataObject();
             self.data.init(self.json);
-            self.load_external_buffers();
             self.load_time = get_timer() - self.load_time;
             
             return true;
@@ -532,7 +645,7 @@ function pdxGLTF(): pdxGLTFBase() constructor {
 
 function pdxGltf(): pdxGLTFBase() constructor {
     self.bufcount = 0;
-    self.binbuffers = array_create(1);
+    self.binbuffer = undefined;
     
     static read = function() {
         self.load_time = get_timer();
@@ -583,12 +696,11 @@ function pdxGltf(): pdxGLTFBase() constructor {
                         
                         break;
                     case gltfChunk.BIN:
-                        self.bufcount++;
-                        if(self.bufcount <> 1) {
+                        if(!is_undefined(self.binbuffer)) {
                             self.critical("GLB has multiple buffer entries");
                         }
-                        self.binbuffers[0] = buffer_create(_chunk_length, buffer_fixed, 1);
-                        buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, self.binbuffers[0], 0);
+                        self.binbuffer = buffer_create(_chunk_length, buffer_fixed, 1);
+                        buffer_copy(_buffer, buffer_tell(_buffer), _chunk_length, self.binbuffer, 0);
                         // Do stuff with tempobuf2
                         /*
                         if(self.filename == "world.glb") {
@@ -608,13 +720,12 @@ function pdxGltf(): pdxGLTFBase() constructor {
             }
             
         }
+        
         buffer_delete(_buffer);
         
-
         if(!is_undefined(self.json)) {
-            self.data = new pdxGltfData();
+            self.data = new pdxGltfDataObject();
             self.data.init(self.json);
-            self.load_external_buffers();
             self.load_time = get_timer() - self.load_time;
             
             return true;

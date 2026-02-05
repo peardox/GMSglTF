@@ -5,11 +5,11 @@ lookat_x = 0;
 lookat_y = 0;
 cam = 0;
 view = 0;
-amodelok = false;
 sprites = undefined;
 tfps = 0;
 nfps = 0;
 gui_mode = 0;
+show_accessors = false;
 // amodel = new pdxGLB();
 //amodel = new pdxGLTF();
 var _fn = "glb/textured_1k_cube.glb";
@@ -34,25 +34,33 @@ _fn = "glb/ancient_desert_arena.glb";
 _fn = "glb/d6.glb";
 _fn = "glb/d20.glb";
 _fn = "gltf/chess_set_1k.gltf";
+_fn = "glb/chubbycat.glb";
+_fn = "glb/uvcube.glb";
+_fn = "gltf/uvcube-unlit.gltf"; 
 */
 
 // _fn = "glb/basic_cube.glb";
- _fn = "glb/ShadedCube.glb";
- _fn = "glb/d20.glb";
-_fn = "glb/rotate.glb"
-_fn = "glb/chubbycat.glb";
+// _fn = "glb/ShadedCube.glb";
+// _fn = "glb/d20.glb";
+// _fn = "glb/rotate.glb"
+// _fn = "gltf/Rotator.gltf";
+_fn = "glb/uvcube.glb";
+// _fn = "gltf/uvcube-unlit.gltf";
+// _fn = "glb/chubbycat.glb";
+
 wd = "C:\\src\\GMSglTF\\datafiles\\";
 
 //_fn = "FlightHelmet\\glTF-Binary\\FlightHelmet.glb";
+// _fn = "SimpleSparseAccessor/glTF/SimpleSparseAccessor.gltf";
 // wd = "C:\\git\\glTF-Sample-Assets\\Models\\";
 
-amodel = open_model(wd + _fn);
-model_errors = "";
+model_file = wd + _fn;
+amodel = open_model(model_file);
+
 //amodel = open_model(working_directory + _fn);
 if(amodel) {
     amodel.read();
     amodel.build();
-    amodelok = true;
     
     model_errors = amodel.gather_errors();
     if(amodel.errval) {

@@ -1,24 +1,26 @@
 tfps += fps_real;
 nfps++;
 
-amodel_data = amodel.data;
-
-
-
 draw_set_colour(c_yellow);
 draw_set_halign(fa_right);
-if(!amodel_data) {
-    draw_text((virtual_width * virtual_scale) - 20,  20, "Model Not Loaded");
+if(amodel == false) {
+    draw_text((virtual_width * virtual_scale) - 20,  20, "Model Not Found : " + model_file);
+    draw_set_colour(c_white);
+    draw_set_halign(fa_left);
+    draw_text(20, 40, "Virtual : " + string(virtual_width) + " x "  + string(virtual_height));    
     exit;
+    
 }
 
-draw_text((virtual_width * virtual_scale) - 20,  20, "Load : " + string_format(amodel.load_time/1000000, 1, 6) + ", Read : " + string_format(amodel.read_time/1000000, 1, 6) + ", FPS : " + string(fps) + ", RealFPS : " + string(tfps/nfps));
+amodel_data = amodel.data;
+
+draw_text((virtual_width * virtual_scale) - 20,  20, "Process : " + string_format(amodel.process_time/1000000, 1, 6) + ", Load : " + string_format(amodel.load_time/1000000, 1, 6) + ", Read : " + string_format(amodel.read_time/1000000, 1, 6) + ", FPS : " + string(fps) + ", RealFPS : " + string(tfps/nfps));
 
 draw_set_colour(c_white);
 draw_set_halign(fa_left);
 //draw_text(20, 40, "LookAt : " + string(lookat_x) + " x "  + string(lookat_y));
-draw_text(20, 40, "Virtual : " + string(virtual_width) + " x "  + string(virtual_height));
-if(amodelok) {
+draw_text(20, 40, "Model : " + string(amodel.filepath) + string(amodel.filename) + ", Virtual : " + string(virtual_width) + " x "  + string(virtual_height));
+if(amodel) {
     switch(gui_mode) {
         case 0:
             draw_text(20,  80, "asset : "       + string(amodel_data.asset)             );
@@ -64,12 +66,27 @@ if(amodelok) {
             } else {
                 draw_text(20, 440, "No Warnings");
             }
-        
+/*        
             if(is_array(self.files)) {
                 draw_text(20, 460, "*** Files *** : " + string(self.files));
             } else {
                 draw_text(20, 460, "No Files");
             }
+*/            
+            if(is_array(amodel.accessorData) && show_accessors) {
+                var _al = array_length(amodel.accessorData);
+                for(var _i=0; _i<_al; _i++) {
+                  draw_text(20, 480 + (_i * 20), "accessorData[" + 
+                        string(_i) + 
+                        "] " + 
+                        amodel.accessorData[_i].prettyPrint()
+                    );
+                }
+            } else {
+               draw_text(20, 480, "Press F12 to show/hide Accessors")
+                
+            }
+            
             break;
         case 1:
             draw_text(20, 80, amodel.tree);

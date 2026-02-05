@@ -26,6 +26,7 @@ enum gltfAccessorType {
 }
 
 enum gltfComponentType {
+    UNKNOWN = -1,
     BYTE               = 5120,   //    signed byte     Signed, 2’s comp     8
     UNSIGNED_BYTE      = 5121,   //    unsigned byte   Unsigned             8
     SHORT              = 5122,   //    signed short    Signed, 2’s comp    16
@@ -49,9 +50,45 @@ enum gltfBufferViewTarget {
     ELEMENT_ARRAY_BUFFER = 34963
 }
 
+function ComponentTypeToString(value) {
+    switch(value) {
+        case gltfComponentType.BYTE:
+            return "S08";
+        case gltfComponentType.FLOAT:
+            return "F32";
+        case gltfComponentType.SHORT:
+            return "S16";
+        case gltfComponentType.UNSIGNED_BYTE:
+            return "U08";
+        case gltfComponentType.UNSIGNED_INT:
+            return "U32";
+        case gltfComponentType.UNSIGNED_SHORT:
+            return "U16";
+    }    
+    
+    return false;
+    
+}
 
-
-// 28 out of 30 - ignoring extensions, extras
+function AccessorTypeToString(value) {
+    switch(value) {
+        case gltfAccessorType.SCALAR:
+            return "SCLR";
+        case gltfAccessorType.VEC2:
+            return "VEC2";
+        case gltfAccessorType.VEC3:
+            return "VEC3";
+        case gltfAccessorType.VEC4:
+            return "VEC4";
+        case gltfAccessorType.MAT2:
+            return "MAT2";
+        case gltfAccessorType.MAT3:
+            return "MAT3";
+        case gltfAccessorType.MAT4:
+            return "MAT4";
+    }
+    return "????";
+}
 
 
 function pdxGltfDataAbstractBase() : pdxException() constructor {
@@ -217,7 +254,7 @@ function pdxGltfDataAbstractBase() : pdxException() constructor {
     }
 }
 
-function pdxGltfData() : pdxGltfDataAbstractBase() constructor {
+function pdxGltfDataObject() : pdxGltfDataAbstractBase() constructor {
     self.extensionsUsed                  = undefined;    // string [1-*]                    Names of glTF extensions used in this asset.            No
     self.extensionsRequired              = undefined;    // string [1-*]                    Names of glTF extensions required to properly load      No
     self.accessors                       = undefined;    // accessor [1-*]                  An array of accessors.                                  No
@@ -240,7 +277,7 @@ function pdxGltfData() : pdxGltfDataAbstractBase() constructor {
     
     static init = function(object) {
         struct_foreach(object, function(_name, _value) {
-          show_debug_message("Type of " + string(_name) + " = " + typeof( _value) );
+            // show_debug_message("Type of " + string(_name) + " = " + typeof( _value) );
             var _val_type = typeof(_value);
             if(_name == "extras") {
                 self.copy_extras(_value);
@@ -1179,6 +1216,7 @@ function pdxGltfDataBuffer() : pdxGltfDataAbstractBase() constructor {
     self.uri                             = undefined;    // string                          The URI (or IRI) of the buffer.                         No
     self.byteLength                      = undefined;    // integer                         The length of the buffer in bytes.                      Yes
     self.name                            = undefined;    // string                          The user-defined name of this object.                   No
+//    self.data                            = undefined;    // binary (internal)               Read on build stage                                     No
 
     static init = function(object) {
         if(typeof(object) != "struct") {
@@ -1293,6 +1331,7 @@ function pdxGltfDataImage() : pdxGltfDataAbstractBase() constructor {
     self.mimeType                        = undefined;    // string                          The image’s media type.                                 No
     self.bufferView                      = undefined;    // integer                         The index of the bufferView that contains the image     No
     self.name                            = undefined;    // string                          The user-defined name of this object.                   No
+//    self.data                            = undefined;    // binary (internal)               Read on build stage                                     No
 
     static init = function(object) {
         if(typeof(object) != "struct") {
@@ -1324,13 +1363,6 @@ function pdxGltfDataImage() : pdxGltfDataAbstractBase() constructor {
     }
 }
 
-
-function pdxGltfDataSkin() : pdxGltfDataAbstractBase() constructor {
-    self.inverseBindMatrices             = undefined;    // integer                         accessor with 4x4 inverse-bind matrices.                No
-    self.skeleton                        = undefined;    // integer                         The index of the node used as a skeleton root.          No
-    self.joints                          = undefined;    // integer [1-*]                   Indices of skeleton nodes, used as joints in this skin. Yes
-    self.name                            = undefined;    // string                          The user-defined name of this object.                   No
-}
 
 function pdxGltfDataTexture() : pdxGltfDataAbstractBase() constructor {
     self.sampler                         = undefined;    // integer                         The index of the sampler used by this texture           No
@@ -1490,6 +1522,13 @@ function pdxGltfDataAccessorSparseValues() : pdxGltfDataAbstractBase() construct
     }
 }
 
+
+function pdxGltfDataSkin() : pdxGltfDataAbstractBase() constructor {
+    self.inverseBindMatrices             = undefined;    // integer                         accessor with 4x4 inverse-bind matrices.                No
+    self.skeleton                        = undefined;    // integer                         The index of the node used as a skeleton root.          No
+    self.joints                          = undefined;    // integer [1-*]                   Indices of skeleton nodes, used as joints in this skin. Yes
+    self.name                            = undefined;    // string                          The user-defined name of this object.                   No
+}
 
 function pdxGltfDataAnimationChannel() : pdxGltfDataAbstractBase() constructor {
     self.sampler                         = undefined;    // integer                         The index of a sampler in this animation                Yes
