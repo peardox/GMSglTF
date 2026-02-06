@@ -50,6 +50,56 @@ enum gltfBufferViewTarget {
     ELEMENT_ARRAY_BUFFER = 34963
 }
 
+function LeftFill(filler, value, digits) {
+    var rval = string(value);
+    var sl = string_length(rval);
+    if(sl < digits) {
+        rval = string_repeat(filler, digits - sl) + rval;
+    }
+    
+    return rval;
+}
+
+function LeftFillZero(value, digits = 2) {
+    return LeftFill("0", value, digits);
+}
+
+function LeftFillBlank(value, digits = 2) {
+    return LeftFill(" ", value, digits);
+}
+
+function DrawModeToString(value) {
+    var rval;
+    switch(value) {
+        case gltfMeshPrimitiveMode.POINTS:
+            rval = "[SPOT]";
+            break;
+        case gltfMeshPrimitiveMode.LINES:
+            rval = "[LINE]";
+            break;
+        case gltfMeshPrimitiveMode.LINE_LOOP:
+            rval = "[LOOP]";
+            break;
+        case gltfMeshPrimitiveMode.LINE_STRIP:
+            rval = "[LSPT]";
+            break;
+        case gltfMeshPrimitiveMode.TRIANGLES:
+            rval = "[TRIS]";
+            break;
+        case gltfMeshPrimitiveMode.TRIANGLE_STRIP:
+            rval = "[TSTP]";
+            break;
+        case gltfMeshPrimitiveMode.TRIANGLE_FAN:
+            rval = "[TFAN]";
+            break;
+        default:
+            rval = "[NONE]";
+            break;
+    }
+    
+    return rval;
+}
+
 function ComponentTypeToString(value) {
     switch(value) {
         case gltfComponentType.BYTE:
@@ -94,7 +144,7 @@ function AccessorTypeToString(value) {
 function pdxGltfDataAbstractBase() : pdxException() constructor {
     self.extensions                      = undefined;    // extension                       JSON object with extension-specific objects.            No
     self.extras                          = undefined;    // extras                          Application-specific data.                              No
-
+    
     static copy_extensions = function(object) {
         if(typeof(object) == "struct") {
             self.extensions = object;
@@ -631,6 +681,32 @@ function pdxGltfDataMeshPrimitive() : pdxGltfDataAbstractBase() constructor {
     self.mode                            = undefined;    // integer                         The topology type of primitives to render.              No, default: 4
     self.targets                         = undefined;    // object [1-*]                    An array of morph targets.                              No
     
+    static prettyPrint = function() {
+        var txt = "";
+        if(!is_undefined(self.mode)) {
+            txt += DrawModeToString(self.mode); 
+        } else {
+            txt += "[----]"
+        }
+        if(!is_undefined(self.material)) {
+           txt += "[MAT:" + LeftFillBlank(self.material) + "]";
+        } else {
+            txt += "[MAT:XX]";
+        }
+        if(!is_undefined(self.indices)) {
+           txt += "[IND:" + LeftFillBlank(self.indices) + "]";
+        } else {
+            txt += "[IND:XX]";
+        }
+        if(!is_undefined(self.attributes)) {
+            txt += ":ATTR: " + self.attributes.prettyPrint();
+        } else {
+            txt += ":ATTR: <NONE>";
+        }
+        
+        return txt;
+    }
+    
     static init = function(object) {
         if(typeof(object) != "struct") {
             self.critical("Type of mesh.primitive is " + typeof(object));
@@ -689,6 +765,35 @@ function pdxGltfDataMeshAttributes() : pdxGltfDataAbstractBase() constructor {
     self.color                           = undefined;
     self.joints                          = undefined;
     self.weights                         = undefined;
+    
+    static prettyPrint = function() {
+        var txt = "";
+        
+        if(!is_undefined(self.POSITION)) {
+           txt += "[POS:" + LeftFillBlank(self.POSITION) + "]";
+        } else {
+            txt += "[POS:XX]";
+        }
+        if(!is_undefined(self.NORMAL)) {
+           txt += "[NML:" + LeftFillBlank(self.NORMAL) + "]";
+        } else {
+            txt += "[NML:XX]";
+        }
+        if(is_array(self.texcoord)) {
+            txt += "[";
+            for(var _i=0, _n = array_length(self.texcoord); _i < _n; _i++) {
+                if(_i > 0) {
+                    txt += "|";
+                }
+                txt += "TEX" + string(_i) + ":" + LeftFillBlank(self.texcoord[_i]);
+            }
+            txt += "]";
+        } else {
+            txt += "[TEX:---]";
+        }
+        
+        return txt;
+    }
     
     // Some primitive entries are of the form <NAME>_<INDEX>
     // This will split out the index and convert into array format
@@ -826,8 +931,8 @@ function pdxGltfDataMaterial() : pdxGltfDataAbstractBase() constructor {
                 }
             } else if(_name == "pbrMetallicRoughness") {
                 if(typeof(_value)=="struct") {
-                    self.pbrMetallicRoughnes = new pdxGltfDataMaterialPbrMetallicRoughness();
-                    self.pbrMetallicRoughnes.init(_value);
+                    self.pbrMetallicRoughness = new pdxGltfDataMaterialPbrMetallicRoughness();
+                    self.pbrMetallicRoughness.init(_value);
                 } else {
                     self.add_error("material element pbrMetallicRoughness is not a struct");
                 }
@@ -978,8 +1083,10 @@ function pdxGltfDataMaterialNormalTextureInfo() : pdxGltfDataAbstractBase() cons
             }
         });
         
-        if(is_undefined(self.texCoord)) {
-            self.texCoord = 0;
+        if(USE_DEFAULTS) {
+            if(is_undefined(self.texCoord)) {
+                self.texCoord = 0;
+            }
         }
         if(is_undefined(self.scale)) {
             self.scale = 1;
@@ -1058,9 +1165,10 @@ function pdxGltfDataTextureInfo() : pdxGltfDataAbstractBase() constructor {
                 self.copy_extras(_value);
             }
         });
-        
-        if(is_undefined(self.texCoord)) {
-            self.texCoord = 0;
+        if(USE_DEFAULTS) {
+            if(is_undefined(self.texCoord)) {
+                self.texCoord = 0;
+            }
         }
         if(is_undefined(self.index)) {
             self.critical("TextureInfo index not set");

@@ -28,9 +28,11 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     self.accessorData = undefined;
     self.bufferData = undefined;
     self.imagesData = undefined;
+    self.materialData = undefined;
 
-
-    self.tree = "";
+    self.vertexBuffer = array_create(0);
+    
+    self.tree = ["","",""];
     
     self.counts = {
         asset: 0,
@@ -184,7 +186,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     }
     
     static add_tree = function(txt) {
-        self.tree += txt;
+        self.tree[0] += txt;
     }
 
     static free = function() {
@@ -279,6 +281,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         if(struct_has(primitive, "targets")) {
             self.add_tree(string_repeat(" ", depth * TABSIZE) + "targets  : " + string(primitive.targets) + "\n");
         }
+        array_push(self.vertexBuffer, primitive);
     }
     
     static process_mesh = function(mesh, depth = 0) {
@@ -383,24 +386,6 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     }
     
 
-
-    /*
-    self.bufferView                      = undefined;    // integer                         The index of the bufferView.                            No
-    self.byteOffset                      = undefined;    // integer                         The offset relative to the start of the buffer view     No, default: 0
-    self.componentType                   = undefined;    // integer                         The datatype of the accessor’s components.              Yes
-    self.normalized                      = undefined;    // boolean                         Integer values are normalized before usage.             No, default: false
-    self.count                           = undefined;    // integer                         The number of elements referenced by this accessor.     Yes
-    self.type                            = undefined;    // string                          Specifies the accessor’s type                           Yes
-    self.max                             = undefined;    // number [1-16]                   Maximum value of each component in this accessor.       No
-    self.min                             = undefined;    // number [1-16]                   Minimum value of each component in this accessor.       No
-    self.sparse                          = undefined;    // accessor.sparse                 Sparse storage of elements that deviate.                No
-    self.name                            = undefined;    // string                          The user-defined name of this object.                   No
-    */
-            
-    static decodeAccessor = function() {
-        
-    }
-
     static createVariableType = function(type, count, componentType) {
         var value;
         switch(type) {
@@ -437,6 +422,9 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         if(struct_has(accessor, "bufferView")) {
             // If we have a bufferView read it in
             var view = self.data.bufferViews[accessor.bufferView];
+            if(struct_has(view, "target")) {
+                new_struct.target = view.target;
+            }
             if(view.buffer < self.counts.bufferViews) {
                 var buffer = self.bufferData[view.buffer];
                 new_struct.read(buffer, view, accessor.byteOffset);
@@ -481,6 +469,100 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         }
     }
     
+/*
+    self.index                           = undefined;    // integer                         The index of the texture.                               Yes
+    self.texCoord                        = undefined;    // integer                         The set index of texture’s TEXCOORD attribute           No, default: 0
+    self.texCoord                           = undefined;    // number                          The scalar parameter applied to each normalTex vector   No, default: 1
+*/
+
+    static processMaterialNormalTexture = function(normalTexture, depth = 0) {
+        self.add_tree(string_repeat(" ", depth * TABSIZE) + "normalTexture" + "\n");
+        
+        if(struct_has(normalTexture, "index")) {
+            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "index : " + string(normalTexture.index) + "\n");
+        }
+        if(struct_has(normalTexture, "texCoord")) {
+            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "texCoord : " + string(normalTexture.texCoord) + "\n");
+        }
+        if(struct_has(normalTexture, "texCoord")) {
+            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "texCoord : " + string(normalTexture.texCoord) + "\n");
+        }
+    }
+
+/*
+    self.baseColorFactor                 = undefined;    // number [4]                      The factors for the base color of the material.         No, default: [1,1,1,1]
+    self.baseColorTexture                = undefined;    // textureInfo                     The base color texture.                                 No
+    self.metallicFactor                  = undefined;    // number                          The factor for the metalness of the material.           No, default: 1
+    self.roughnessFactor                 = undefined;    // number                          The factor for the roughness of the material.           No, default: 1
+    self.metallicRoughnessTexture        = undefined;    // textureInfo                     The metallic-roughness texture.                         No
+*/        
+    static processMaterialPbrMetallicRoughness = function(pbrMetallicRoughness, depth = 0) {
+        self.add_tree(string_repeat(" ", depth * TABSIZE) + "pbrMetallicRoughness" + "\n");
+        if(struct_has(pbrMetallicRoughness, "baseColorFactor")) {
+            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "baseColorFactor : " + string(pbrMetallicRoughness.baseColorFactor) + "\n");
+        }
+        if(struct_has(pbrMetallicRoughness, "metallicFactor")) {
+            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "metallicFactor : " + string(pbrMetallicRoughness.metallicFactor) + "\n");
+        }
+        if(struct_has(pbrMetallicRoughness, "roughnessFactor")) {
+            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "roughnessFactor : " + string(pbrMetallicRoughness.roughnessFactor) + "\n");
+        }
+        if(struct_has(pbrMetallicRoughness, "baseColorTexture")) {
+            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "baseColorTexture : " + string(pbrMetallicRoughness.baseColorTexture) + "\n");
+        }
+        if(struct_has(pbrMetallicRoughness, "metallicRoughnessTexture")) {
+            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "metallicRoughnessTexture : " + string(pbrMetallicRoughness.metallicRoughnessTexture) + "\n");
+        }
+    }
+    
+/*
+    self.name                            = undefined;    // string                          The user-defined name of this object.                   No
+    self.pbrMetallicRoughness            = undefined;    // material.pbrMetallicRoughness   PBR metallic-roughness material model                   No
+    self.normalTexture                   = undefined;    // material.normalTextureInfo      The tangent space normal texture.                       No                          
+    self.occlusionTexture                = undefined;    // material.occlusionTextureInfo   The occlusion texture.                                  No                          
+    self.emissiveTexture                 = undefined;    // textureInfo                     The emissive texture.                                   No                         
+    self.emissiveFactor                  = undefined;    // number [3]                      The factors for the emissive color of the material.     No, default: [0,0,0]       
+    self.alphaMode                       = undefined;    // string                          The alpha rendering mode of the material.               No, default: "OPAQUE"
+    self.alphaCutoff                     = undefined;    // number                          The alpha cutoff value of the material.                 No, default: 0.5
+    self.doubleSided                     = undefined;    // boolean                         Specifies whether the material is double sided.         No
+*/
+    static process_material = function(material, index, depth = 0) {
+        if(struct_has(material, "name")) {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "Material : " + material.name + "\n");
+        } else {
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "Material : <UNNAMED>\n");
+        }
+        
+        if(struct_has(material, "pbrMetallicRoughness")) {
+            self.processMaterialPbrMetallicRoughness(material.pbrMetallicRoughness, depth + 1);
+        }
+        
+        if(struct_has(material, "normalTexture")) {
+            self.processMaterialNormalTexture(material.normalTexture, depth + 1);
+        }
+        
+        if(struct_has(material, "occlusionTexture")) {
+            // self.processMaterialOcclusionTexture(material.occlusionTexture, depth + 1);
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "occlusionTexture" + "\n");
+        }
+        
+        if(struct_has(material, "emissiveTexture")) {
+            // self.processMaterialTexture(material.emissiveTexture, depth + 1);
+            self.add_tree(string_repeat(" ", depth * TABSIZE) + "emissiveTexture" + "\n");
+        }
+    }
+        
+    static processMaterials = function(depth = 0) {
+        var _al = array_length(self.data.materials);
+        if(is_undefined(self.materialData)) {
+            self.materialData = array_create(_al, undefined);
+        }
+        for(var _i = 0; _i < _al; _i++) {
+            self.process_material(self.data.materials[_i], _i);
+        }
+    }
+    
+    
     static processImage = function(image, index) {
         var temp;
         if(struct_has(image, "uri")) {
@@ -491,7 +573,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
             }
         } else {
             // Otherwise the image is in  BufferView
-            show_debug_message("Buffered image");
+            self.add_warning("*** Using buffered image ***");
             /*
             if(struct_exists(self, "binbuffer")) {
                 if(!is_undefined(self.binbuffer)) {
@@ -573,7 +655,10 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     
     static build = function() {
         self.process_time = get_timer();
-        self.tree = "";
+        self.tree = ["","",""];
+        
+        // Clear vertexBuffer
+        array_delete(self.vertexBuffer, 0, array_length(self.vertexBuffer));
         
         // First create counts of all the main arrays
         self.create_counts();
@@ -603,6 +688,10 @@ function pdxGLTFBase(): pdxModelFile() constructor {
             self.processAccessors();
         }
          
+        // Materials
+        if(self.counts.materials > 0) {
+            self.processMaterials();
+        }
         // Finally build scene(s)       
         if(self.data.scene < self.counts.scenes) {
             var _scene = self.data.scenes[self.data.scene];

@@ -73,23 +73,45 @@ if(amodel) {
                 draw_text(20, 460, "No Files");
             }
 */            
-            if(is_array(amodel.accessorData) && show_accessors) {
-                var _al = array_length(amodel.accessorData);
-                for(var _i=0; _i<_al; _i++) {
-                  draw_text(20, 480 + (_i * 20), "accessorData[" + 
-                        string(_i) + 
-                        "] " + 
-                        amodel.accessorData[_i].prettyPrint()
-                    );
-                }
-            } else {
-               draw_text(20, 480, "Press F12 to show/hide Accessors")
-                
-            }
             
+            switch(show_detail) {
+                case 0:
+                    draw_text(20, 480, "Press F12 to show/hide Accessors")
+                    break;
+                case 1:
+                    if(is_array(amodel.accessorData)) {
+                        var _al = array_length(amodel.accessorData);
+                        for(var _i=0; _i<_al; _i++) {
+                          draw_text(20, 480 + (_i * 20), "accessorData[" + 
+                                LeftFillBlank(_i) + 
+                                "] " + 
+                                amodel.accessorData[_i].prettyPrint()
+                            );
+                        }
+                    } else {
+                          draw_text(20, 480, "No Accessor Data") 
+                    }
+                    break;
+                case 2: 
+                    if(is_array(amodel.vertexBuffer)) {
+                        var _al = array_length(amodel.vertexBuffer);
+                        for(var _i=0; _i<_al; _i++) {
+                          draw_text(20, 480 + (_i * 20), "vertexBuffer[" + 
+                                string(_i) + 
+                                "] " + 
+                                amodel.vertexBuffer[_i].prettyPrint()
+                            );
+                        }
+                    } else {
+                          draw_text(20, 480, "No VertexBuffer Data") 
+                    }
+                    break;
+            }
             break;
         case 1:
-            draw_text(20, 80, amodel.tree);
+            draw_text(20, 80, amodel.tree[0]);
+            draw_text(20, 800, amodel.tree[1]);
+            draw_text(20, 1600, amodel.tree[2]);
 
             break;
         case 2:

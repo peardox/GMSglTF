@@ -9,7 +9,7 @@ sprites = undefined;
 tfps = 0;
 nfps = 0;
 gui_mode = 0;
-show_accessors = false;
+show_detail = 0;
 // amodel = new pdxGLB();
 //amodel = new pdxGLTF();
 var _fn = "glb/textured_1k_cube.glb";
@@ -37,16 +37,19 @@ _fn = "gltf/chess_set_1k.gltf";
 _fn = "glb/chubbycat.glb";
 _fn = "glb/uvcube.glb";
 _fn = "gltf/uvcube-unlit.gltf"; 
+_fn = "glb/boy_ani.glb";
+_fn = "glb/boy.glb";
 */
+_fn = "gltf/chess_set_1k.gltf";
 
 // _fn = "glb/basic_cube.glb";
 // _fn = "glb/ShadedCube.glb";
+// _fn = "gltf/ShadedCube.gltf";
 // _fn = "glb/d20.glb";
 // _fn = "glb/rotate.glb"
 // _fn = "gltf/Rotator.gltf";
-_fn = "glb/uvcube.glb";
+// _fn = "glb/uvcube.glb";
 // _fn = "gltf/uvcube-unlit.gltf";
-// _fn = "glb/chubbycat.glb";
 
 wd = "C:\\src\\GMSglTF\\datafiles\\";
 

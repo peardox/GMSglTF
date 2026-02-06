@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"pdxGltfExtensions",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"pdxGltfExtensions",
+  "parent":{
+    "name":"gmsglb",
+    "path":"gmsglb.yyp",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

@@ -13,7 +13,7 @@ function pdxGltfDataValue(valueCount, elementType = gltfComponentType.UNKNOWN) :
     self.type = gltfAccessorType.UNKNOWN;
     self.elementType = gltfComponentType.UNKNOWN;
     self.sparse = undefined;
-    
+    self.target = undefined;
     
     switch(elementType) {
         case gltfComponentType.BYTE:
@@ -161,14 +161,34 @@ function pdxGltfDataValue(valueCount, elementType = gltfComponentType.UNKNOWN) :
     }
     
     static prettyPrint = function() {
-        var t = "[" + AccessorTypeToString(self.type) + ":" + ComponentTypeToString(elementType) + ":" + string(self.elementLength) + "] : ";
-        for(var _i=0; _i<self.elementLength; _i++) {
-            if(_i > 0) {
-                t += ",";
+        var t = "[NON]"
+        if(!is_undefined(self.target)) {
+            if(self.target == gltfBufferViewTarget.ARRAY_BUFFER) {
+                t = "[ARR]";
+            } else if(self.target == gltfBufferViewTarget.ELEMENT_ARRAY_BUFFER) {
+                t = "[ELM]";
+            } else {
+                t = "[UNK]";
             }
-            t += string(self.getValue(_i));
         }
-        
+        t += "[" + AccessorTypeToString(self.type) + ":" + ComponentTypeToString(self.elementType) + ":" + string(self.elementLength) + "] : ";
+        if(self.elementLength < 10) {
+            for(var _i=0; _i<self.elementLength; _i++) {
+                if(_i > 0) {
+                    t += ",";
+                }
+                t += string(self.getValue(_i));
+            }
+        } else {
+            for(var _i=0; _i<10; _i++) {
+                if(_i > 0) {
+                    t += ",";
+                }
+                t += string(self.getValue(_i));
+            }
+            t += "...";
+        }
+            
         return t;
     }
 }

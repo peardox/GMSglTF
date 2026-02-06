@@ -20,6 +20,58 @@ function init() {
 
 // init();
 
+/*
+    static prettyPrint2 = function(object) {
+        if(is_array(object)) {
+            self.pretty += "...";
+            return;
+        }
+        
+        struct_foreach(object, function(_name, _value) {
+            if(!is_undefined(_value)) {
+                if(is_array(_value)) {
+                } else {
+                    if(string_length(self.pretty > 1)) {
+                        self.pretty += ", "
+                    }
+                    self.pretty += _name + ":" + string(_value) + ",";
+                }
+            }
+            });
+        
+        self.pretty += "}";
+        
+    }
+    
+    static prettyPrint = function() {
+        self.pretty = "{";
+        struct_foreach(self, function(_name, _value) {
+            if(!is_undefined(_value)) {
+                if(is_array(_value)) {
+                    for(var _i=0; _i<array_length(_value); _i++) {
+                        if(_i>0) {
+                            self.pretty += ",";
+                        }
+                        self.pretty += "[";
+                        self.prettyPrint2(_value[_i]);
+                        self.pretty += "]";
+                    }
+                } else {
+                    if(string_length(self.pretty > 1)) {
+                        self.pretty += ", "
+                    }
+                    self.pretty += _name + ":" + string(_value) + ",";
+                }
+            }
+            });
+        
+        self.pretty += "}";
+        
+        return self.pretty;
+    }
+    
+*/
+
 function TextToFile(text, fname) {
     if(file_exists(fname)) {
         return;
