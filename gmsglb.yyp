@@ -162,6 +162,7 @@
     {"id":{"name":"pdxGltfExtensions","path":"scripts/pdxGltfExtensions/pdxGltfExtensions.yy",},},
     {"id":{"name":"pdxGltfStructs","path":"scripts/pdxGltfStructs/pdxGltfStructs.yy",},},
     {"id":{"name":"pdxSupport","path":"scripts/pdxSupport/pdxSupport.yy",},},
+    {"id":{"name":"pdxWidgets","path":"scripts/pdxWidgets/pdxWidgets.yy",},},
   ],
   "resourceType":"GMProject",
   "resourceVersion":"2.0",

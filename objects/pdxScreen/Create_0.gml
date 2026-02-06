@@ -77,3 +77,12 @@ if(amodel) {
 }
 
 files = findModels(wd + "glb");
+
+tv = new pdxWidgetTreeView("Root");
+var _node1 = tv.getRoot();
+_node1.addItem("Item 1", "data1");
+var _node2 = _node1.addNode("Node 1");
+_node1.addItem("Item 2", "data2");
+_node2.addItem("Item 3", "data3");
+_node2.addItem("Item 4", "data4");
+_node2.addItem("Item 5", "data5");
