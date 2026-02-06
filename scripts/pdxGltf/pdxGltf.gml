@@ -473,12 +473,29 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         }
     }
     
-/*
-    self.index                           = undefined;    // integer                         The index of the texture.                               Yes
-    self.texCoord                        = undefined;    // integer                         The set index of texture’s TEXCOORD attribute           No, default: 0
-    self.texCoord                           = undefined;    // number                          The scalar parameter applied to each normalTex vector   No, default: 1
-*/
+    static processMaterialTextureInfo = function(textureInfo, depth = 0) {
+        if(structHas(textureInfo, "index")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "index : " + string(textureInfo.index) + "\n");
+        }
+        if(structHas(textureInfo, "texCoord")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "texCoord : " + string(textureInfo.texCoord) + "\n");
+        }
+    }
 
+    static processMaterialOcclusionTexture = function(occlusionTexture, depth = 0) {
+        self.addTreeMaterial(string_repeat(" ", depth * TABSIZE) + "occlusionTexture" + "\n");
+        
+        if(structHas(occlusionTexture, "index")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "index : " + string(occlusionTexture.index) + "\n");
+        }
+        if(structHas(occlusionTexture, "texCoord")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "texCoord : " + string(occlusionTexture.texCoord) + "\n");
+        }
+        if(structHas(occlusionTexture, "strength")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "strength : " + string(occlusionTexture.strength) + "\n");
+        }
+    }
+    
     static processMaterialNormalTexture = function(normalTexture, depth = 0) {
         self.addTreeMaterial(string_repeat(" ", depth * TABSIZE) + "normalTexture" + "\n");
         
@@ -488,8 +505,8 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         if(structHas(normalTexture, "texCoord")) {
             self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "texCoord : " + string(normalTexture.texCoord) + "\n");
         }
-        if(structHas(normalTexture, "texCoord")) {
-            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "texCoord : " + string(normalTexture.texCoord) + "\n");
+        if(structHas(normalTexture, "scale")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "scale : " + string(normalTexture.scale) + "\n");
         }
     }
 
@@ -513,10 +530,12 @@ function pdxGLTFBase(): pdxModelFile() constructor {
             self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "roughnessFactor : " + string(pbrMetallicRoughness.roughnessFactor) + "\n");
         }
         if(structHas(pbrMetallicRoughness, "baseColorTexture")) {
-            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "baseColorTexture : " + string(pbrMetallicRoughness.baseColorTexture) + "\n");
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "baseColorTexture\n");
+            self.processMaterialTextureInfo(pbrMetallicRoughness.baseColorTexture, depth+1);
         }
         if(structHas(pbrMetallicRoughness, "metallicRoughnessTexture")) {
-            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "metallicRoughnessTexture : " + string(pbrMetallicRoughness.metallicRoughnessTexture) + "\n");
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "metallicRoughnessTexture\n");
+            self.processMaterialTextureInfo(pbrMetallicRoughness.metallicRoughnessTexture, depth+1);
         }
     }
     
@@ -532,6 +551,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     self.doubleSided                     = undefined;    // boolean                         Specifies whether the material is double sided.         No
 */
     static processMaterial = function(material, index, depth = 0) {
+
         if(structHas(material, "name")) {
             self.addTreeMaterial(string_repeat(" ", depth * TABSIZE) + "Material : " + material.name + "\n");
         } else {
@@ -539,22 +559,22 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         }
         
         if(structHas(material, "pbrMetallicRoughness")) {
-            self.processMaterialPbrMetallicRoughness(material.pbrMetallicRoughness, depth + 1);
+            self.processMaterialPbrMetallicRoughness(material.pbrMetallicRoughness, depth + 2);
         }
         
         if(structHas(material, "normalTexture")) {
-            self.processMaterialNormalTexture(material.normalTexture, depth + 1);
+            self.processMaterialNormalTexture(material.normalTexture, depth + 2);
         }
         
         if(structHas(material, "occlusionTexture")) {
-            // self.processMaterialOcclusionTexture(material.occlusionTexture, depth + 1);
-            self.addTreeMaterial(string_repeat(" ", depth * TABSIZE) + "occlusionTexture" + "\n");
+            self.processMaterialOcclusionTexture(material.occlusionTexture, depth + 2);
         }
         
         if(structHas(material, "emissiveTexture")) {
-            // self.processMaterialTexture(material.emissiveTexture, depth + 1);
             self.addTreeMaterial(string_repeat(" ", depth * TABSIZE) + "emissiveTexture" + "\n");
+            self.processMaterialTextureInfo(material.emissiveTexture, depth + 1);
         }
+
     }
         
     static processMaterials = function(depth = 0) {
@@ -666,7 +686,9 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         self.tree = ["","",""];
         
         // Clear vertexBuffer
-        array_delete(self.vertexBuffer, 0, array_length(self.vertexBuffer));
+        if(array_length(self.vertexBuffer)>0) {
+            array_delete(self.vertexBuffer, 0, array_length(self.vertexBuffer));
+        }
         
         // First create counts of all the main arrays
         self.createCounts();

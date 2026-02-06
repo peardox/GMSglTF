@@ -39,6 +39,9 @@ _fn = "glb/uvcube.glb";
 _fn = "gltf/uvcube-unlit.gltf"; 
 _fn = "glb/boy_ani.glb";
 _fn = "glb/boy.glb";
+_fn = "glb/stonelake.glb";
+_fn = "glb/island.glb";
+_fn = "glb/CarConcept.glb";
 */
 _fn = "gltf/chess_set_1k.gltf";
 
@@ -50,6 +53,7 @@ _fn = "gltf/chess_set_1k.gltf";
 // _fn = "gltf/Rotator.gltf";
 // _fn = "glb/uvcube.glb";
 // _fn = "gltf/uvcube-unlit.gltf";
+_fn = "glb/CarConcept.glb";
 
 wd = "C:\\src\\GMSglTF\\datafiles\\";
 

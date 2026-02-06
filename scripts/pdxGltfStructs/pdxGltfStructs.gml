@@ -1048,11 +1048,10 @@ function pdxGltfDataMaterialNormalTextureInfo() : pdxGltfDataAbstractBase() cons
             }
         });
         
-        if(USE_DEFAULTS) {
-            if(is_undefined(self.texCoord)) {
-                self.texCoord = 0;
-            }
+        if(is_undefined(self.texCoord)) {
+            self.texCoord = 0;
         }
+
         if(is_undefined(self.scale)) {
             self.scale = 1;
         }
@@ -1130,10 +1129,9 @@ function pdxGltfDataTextureInfo() : pdxGltfDataAbstractBase() constructor {
                 self.copyExtras(_value);
             }
         });
-        if(USE_DEFAULTS) {
-            if(is_undefined(self.texCoord)) {
-                self.texCoord = 0;
-            }
+        
+        if(is_undefined(self.texCoord)) {
+            self.texCoord = 0;
         }
         if(is_undefined(self.index)) {
             self.critical("TextureInfo index not set");
