@@ -145,7 +145,7 @@ function pdxGltfDataAbstractBase() : pdxException() constructor {
     self.extensions                      = undefined;    // extension                       JSON object with extension-specific objects.            No
     self.extras                          = undefined;    // extras                          Application-specific data.                              No
     
-    static copy_extensions = function(object) {
+    static copyExtensions = function(object) {
         if(typeof(object) == "struct") {
             self.extensions = object;
             return true;
@@ -153,16 +153,16 @@ function pdxGltfDataAbstractBase() : pdxException() constructor {
         return false;
     }
     
-    static copy_extras = function(value) {
+    static copyExtras = function(value) {
         self.extras = value;
     }
     
-    static copy_unhandled = function(name, value) {
+    static copyUnhandled = function(name, value) {
         self[$ name] = value;
         self.addWarning("Unhandled " + typeof(value) + " value with key = " + string(name));
     }
     
-    static copy_object = function(object) {
+    static copyObject = function(object) {
         if(typeof(object) == "struct") {
          struct_foreach(object, function(_name, _value) {
              self[$ _name] = _value;
@@ -173,7 +173,7 @@ function pdxGltfDataAbstractBase() : pdxException() constructor {
         }
     }    
         
-    static copy_array = function(target, array, type) {
+    static copyArray = function(target, array, type) {
         var _res = true;
         var _al = array_length(array);
         self[$ target] = array_create(_al);
@@ -190,7 +190,7 @@ function pdxGltfDataAbstractBase() : pdxException() constructor {
         return _res;
     }
     
-    static copy_integer = function(target, value) {
+    static copyInteger = function(target, value) {
         var _res = true;
         if(typeof(value) == "number" && is_int(value)) {
             self[$ target] = value;
@@ -202,7 +202,7 @@ function pdxGltfDataAbstractBase() : pdxException() constructor {
         return _res;
     }
     
-    static copy_float = function(target, value) {
+    static copyFloat = function(target, value) {
         var _res = true;
         if(typeof(value) == "number") {
             self[$ target] = value;
@@ -214,7 +214,7 @@ function pdxGltfDataAbstractBase() : pdxException() constructor {
         return _res;
     }
     
-    static copy_multi_float = function(target, value, len) {
+    static copyMultiFloat = function(target, value, len) {
         var _res = true;
         if(typeof(value) != "array") {
             return false;
@@ -238,7 +238,7 @@ function pdxGltfDataAbstractBase() : pdxException() constructor {
         return _res;
     }
     
-    static copy_string = function(target, value) {
+    static copyString = function(target, value) {
         var _res = true;
         if(typeof(value) == "string") {
             self[$ target] = value;
@@ -250,7 +250,7 @@ function pdxGltfDataAbstractBase() : pdxException() constructor {
         return _res;
     }
     
-    static copy_integer_array = function(target, array) {
+    static copyIntegerArray = function(target, array) {
         var _res = true;
         var _al = array_length(array);
         self[$ target] = array_create(_al);
@@ -266,42 +266,7 @@ function pdxGltfDataAbstractBase() : pdxException() constructor {
         }
         return _res;
     }
-    
-    static do_validate = function(required, defaults) {
-        if(is_array(required)) {
-            var _al = array_length(required);
-            for(var _i=0; _i<_al; _i++) {
-                if(is_string(required[_i][0])) {
-                    if(struct_exists(self, required[_i][0])) {
-                        if(is_undefined(self[$ required[_i][0]])) {
-                            self.addError("Required value for " + required[_i][0] + " is undefined");
-                        }
-                    } else {
-                        self.addError("Required value for " + required[_i][0] + " is missing");
-                    }
-                }
-                
-            }
-        }
 
-        if(is_array(defaults)) {
-            var _al = array_length(defaults);
-            for(var _i=0; _i<_al; _i++) {
-                if((array_length(defaults[_i]) == 2) && is_string(defaults[_i][0])) {
-                    if(struct_exists(self, defaults[_i][0])) {
-                        if(is_undefined(self[$ defaults[_i][0]])) {
-                            self[$ defaults[_i][0]] = defaults[_i][1];
-                        }
-                    }
-                }
-                
-            }
-        }
-        
-        if(self.hasErrors()) {
-            show_debug_message(self.error);
-        }
-    }
 }
 
 function pdxGltfDataObject() : pdxGltfDataAbstractBase() constructor {
@@ -330,19 +295,19 @@ function pdxGltfDataObject() : pdxGltfDataAbstractBase() constructor {
             // show_debug_message("Type of " + string(_name) + " = " + typeof( _value) );
             var _val_type = typeof(_value);
             if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             } else {
                 switch(_val_type) {
                     case "array":
                         var _al = array_length(_value);
                         switch(_name) {
                             case  "extensionsRequired":
-                                if(!self.copy_array("extensionsRequired", _value, "string")) {
+                                if(!self.copyArray("extensionsRequired", _value, "string")) {
                                     self.addError("Bad Array for extensionsRequired");
                                 }
                                 break;
                             case "extensionsUsed":
-                                if(!self.copy_array("extensionsUsed", _value, "string")) {
+                                if(!self.copyArray("extensionsUsed", _value, "string")) {
                                     self.addError("Bad Array for extensionsUsed");
                                 }
                                 break;
@@ -417,7 +382,7 @@ function pdxGltfDataObject() : pdxGltfDataAbstractBase() constructor {
                                 }
                                 break;
                             default:
-                                self.copy_unhandled(_name, _value);
+                                self.copyUnhandled(_name, _value);
                                 break;
                         }
                         break;
@@ -428,12 +393,12 @@ function pdxGltfDataObject() : pdxGltfDataAbstractBase() constructor {
                                 self.asset.init(_value);
                                 break;
                             case "extensions":
-                                if(!self.copy_extensions(_value)) {
+                                if(!self.copyExtensions(_value)) {
                                     self.addError("glTF extensions expected struct - got " + typeof(_value));
                                 }
                                 break;
                             default:
-                                self.copy_unhandled(_name, _value);
+                                self.copyUnhandled(_name, _value);
                                 break;
                         }
                         break;
@@ -443,15 +408,15 @@ function pdxGltfDataObject() : pdxGltfDataAbstractBase() constructor {
                                 self.scene = _value;
                                 break;
                             default:
-                                self.copy_unhandled(_name, _value);
+                                self.copyUnhandled(_name, _value);
                                 break;
                         }
                         break;
                     default:
                         if(_name == "extras") {
-                            self.copy_extensions(_value);
+                            self.copyExtensions(_value);
                         } else {
-                            self.copy_unhandled(_name, _value);
+                            self.copyUnhandled(_name, _value);
                         }
                         break;
                 }
@@ -479,25 +444,25 @@ function pdxGltfDataAsset() : pdxGltfDataAbstractBase() constructor {
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "version") {
-                if(!self.copy_string("version", _value)) {
+                if(!self.copyString("version", _value)) {
                     self.addError("asset element version is not a string");
                 }
             } else if(_name == "copyright") {
-                if(!self.copy_string("copyright", _value)) {
+                if(!self.copyString("copyright", _value)) {
                     self.addError("asset element copyright is not a string");
                 }
             } else if(_name == "generator") {
-                if(!self.copy_string("generator", _value)) {
+                if(!self.copyString("generator", _value)) {
                     self.addError("asset element generator is not a string");
                 }
             } else if(_name == "minVersion") {
-                if(!self.copy_string("minVersion", _value)) {
+                if(!self.copyString("minVersion", _value)) {
                     self.addError("asset element minVersion is not a string");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
         });
         
@@ -517,21 +482,21 @@ function pdxGltfDataScene() : pdxGltfDataAbstractBase() constructor {
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "name") {
-                if(!self.copy_string("name", _value)) {
+                if(!self.copyString("name", _value)) {
                     self.addError("Scene name is not a string");
                 }
             } else if(_name == "nodes") {
                 if(typeof(_value) == "array") {
-                    if(!self.copy_integer_array("nodes", _value)) {
+                    if(!self.copyIntegerArray("nodes", _value)) {
                         self.addError("Bad Array for nodes");
                     }
                 } else {
                     self.addError("Node nodes is not an array");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
         });
 
@@ -563,49 +528,49 @@ function pdxGltfDataNode() : pdxGltfDataAbstractBase() constructor {
                 }
             } else if(_name == "children") {
                 if(typeof(_value) == "array") {
-                    if(!self.copy_integer_array("children", _value)) {
+                    if(!self.copyIntegerArray("children", _value)) {
                         self.addError("Bad Array for children");
                     }
                 } else {
                     self.addError("Node children is not an array");
                 }
             } else if(_name == "skin") { 
-                if(!self.copy_integer("skin", _value)) {
+                if(!self.copyInteger("skin", _value)) {
                     self.addError("node element skin is not an integer");
                 }
             } else if(_name == "camera") { 
-                if(!self.copy_integer("camera", _value)) {
+                if(!self.copyInteger("camera", _value)) {
                     self.addError("node element camera is not an integer");
                 }
             } else if(_name == "mesh") { 
-                if(!self.copy_integer("mesh", _value)) {
+                if(!self.copyInteger("mesh", _value)) {
                     self.addError("node element mesh is not an integer");
                 }
             
             } else if(_name == "scale") { 
-                if(!self.copy_multi_float("scale", _value, 3)) {
+                if(!self.copyMultiFloat("scale", _value, 3)) {
                     self.addError("Bad Array for node element scale");
                 }
             } else if(_name == "translation") { 
-                if(!self.copy_multi_float("translation", _value, 3)) {
+                if(!self.copyMultiFloat("translation", _value, 3)) {
                     self.addError("Bad Array for node element translation");
                 }
             } else if(_name == "rotation") { 
-                if(!self.copy_multi_float("rotation", _value, 4)) {
+                if(!self.copyMultiFloat("rotation", _value, 4)) {
                     self.addError("Bad Array for node element rotation");
                 }
             } else if(_name == "weights") { 
-                if(!self.copy_array("weights", _value, "number")) {
+                if(!self.copyArray("weights", _value, "number")) {
                     self.addError("Bad Array for node element weights");
                 }
             } else if(_name == "matrix") { 
-                if(!self.copy_multi_float("matrix", _value, 16)) {
+                if(!self.copyMultiFloat("matrix", _value, 16)) {
                     self.addError("Bad Array for node element matrix");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
             
             
@@ -640,7 +605,7 @@ function pdxGltfDataMesh() : pdxGltfDataAbstractBase() constructor {
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "name") {
-                if(!self.copy_string("name", _value)) {
+                if(!self.copyString("name", _value)) {
                     self.addError("Mesh name is not a string");
                 }
             } else if(_name == "primitives") {
@@ -661,9 +626,9 @@ function pdxGltfDataMesh() : pdxGltfDataAbstractBase() constructor {
                     self.addError("Mesh weights is not an array");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
         });
 
@@ -720,15 +685,15 @@ function pdxGltfDataMeshPrimitive() : pdxGltfDataAbstractBase() constructor {
                     self.addError("primitive element attributes is not a struct");
                 }
             } else if(_name == "indices") {
-                if(!self.copy_integer("indices", _value)) {
+                if(!self.copyInteger("indices", _value)) {
                     self.addError("primitive element indices is not an integer");
                 }
             } else if(_name == "material") {
-                if(!self.copy_integer("material", _value)) {
+                if(!self.copyInteger("material", _value)) {
                     self.addError("primitive element material is not an integer");
                 }
             } else if(_name == "mode") {
-                if(!self.copy_integer("mode", _value)) {
+                if(!self.copyInteger("mode", _value)) {
                     self.addError("primitive element mode is not an integer");
                 }
             } else if(_name == "targets") {
@@ -740,9 +705,9 @@ function pdxGltfDataMeshPrimitive() : pdxGltfDataAbstractBase() constructor {
                     }
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
         });
         
@@ -797,7 +762,7 @@ function pdxGltfDataMeshAttributes() : pdxGltfDataAbstractBase() constructor {
     
     // Some primitive entries are of the form <NAME>_<INDEX>
     // This will split out the index and convert into array format
-    static set_underscore_array_value = function(target, name, value) {
+    static setUnderscoreArrayValue = function(target, name, value) {
         var index = -1;
 
         var underscore_parts = string_split(string_trim(name), "_", true);
@@ -838,37 +803,37 @@ function pdxGltfDataMeshAttributes() : pdxGltfDataAbstractBase() constructor {
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "POSITION") {
-                if(!self.copy_integer("POSITION", _value)) {
+                if(!self.copyInteger("POSITION", _value)) {
                     self.addError("attribute element POSITION is not an integer");
                 }
             } else if(_name == "NORMAL") {
-                if(!self.copy_integer("NORMAL", _value)) {
+                if(!self.copyInteger("NORMAL", _value)) {
                     self.addError("attribute element NORMAL is not an integer");
                 }
             } else if(_name == "TANGENT") {
-                if(!self.copy_integer("TANGENT", _value)) {
+                if(!self.copyInteger("TANGENT", _value)) {
                     self.addError("attribute element TANGENT is not an integer");
                 }
             } else if(_name == "COLOR_") {
-                if(!self.set_underscore_array_value("color",_name, _value)) {
+                if(!self.setUnderscoreArrayValue("color",_name, _value)) {
                     self.addError("attribute element " + _name + " is not an integer");
                 }
             } else if(string_starts_with(_name, "TEXCOORD_")) { 
-                if(!self.set_underscore_array_value("texcoord",_name, _value)) {
+                if(!self.setUnderscoreArrayValue("texcoord",_name, _value)) {
                     self.addError("attribute element " + _name + " is not an integer");
                 }
             } else if(string_starts_with(_name, "JOINTS_")) {
-                if(!self.set_underscore_array_value("joints",_name, _value)) {
+                if(!self.setUnderscoreArrayValue("joints",_name, _value)) {
                     self.addError("attribute element " + _name + " is not an integer");
                 }
             } else if(string_starts_with(_name, "WEIGHTS_")) {
-                if(!self.set_underscore_array_value("weights",_name, _value)) {
+                if(!self.setUnderscoreArrayValue("weights",_name, _value)) {
                     self.addError("attribute element " + _name + " is not an integer");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
         });
         
@@ -926,7 +891,7 @@ function pdxGltfDataMaterial() : pdxGltfDataAbstractBase() constructor {
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "name") {
-                if(!self.copy_string("name", _value)) {
+                if(!self.copyString("name", _value)) {
                     self.addError("material element name is not a string");
                 }
             } else if(_name == "pbrMetallicRoughness") {
@@ -958,15 +923,15 @@ function pdxGltfDataMaterial() : pdxGltfDataAbstractBase() constructor {
                     self.addError("material element emissiveTexture is not a struct");
                 }
             } else if(_name == "emissiveFactor") {
-                if(!self.copy_multi_float("emissiveFactor", _value, 3)) {
+                if(!self.copyMultiFloat("emissiveFactor", _value, 3)) {
                     self.addError("material element emissiveFactor is not a float(3)");
                 }
             } else if(_name == "alphaMode") {
-                if(!self.copy_string("alphaMode", _value)) {
+                if(!self.copyString("alphaMode", _value)) {
                     self.addError("material element alphaMode is not a string");
                 }
             } else if(_name == "alphaCutoff") {
-                if(!self.copy_float("alphaCutoff", _value)) {
+                if(!self.copyFloat("alphaCutoff", _value)) {
                     self.addError("material element alphaCutoff is not a float");
                 }
             } else if(_name == "doubleSided") {
@@ -976,9 +941,9 @@ function pdxGltfDataMaterial() : pdxGltfDataAbstractBase() constructor {
                     self.addError("material element doubleSided is not a bool");
                 }            
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
         });
         
@@ -1009,15 +974,15 @@ function pdxGltfDataMaterialPbrMetallicRoughness() : pdxGltfDataAbstractBase() c
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "baseColorFactor") {
-                if(!self.copy_multi_float("baseColorFactor", _value, 4)) {
+                if(!self.copyMultiFloat("baseColorFactor", _value, 4)) {
                     self.addError("material element baseColorFactor is not a float(4)");
                 }
             } else if(_name == "metallicFactor") {
-                if(!self.copy_float("metallicFactor", _value)) {
+                if(!self.copyFloat("metallicFactor", _value)) {
                     self.addError("material element metallicFactor is not a float");
                 }
             } else if(_name == "roughnessFactor") {
-                if(!self.copy_float("roughnessFactor", _value)) {
+                if(!self.copyFloat("roughnessFactor", _value)) {
                     self.addError("material element roughnessFactor is not a float");
                 }
             } else if(_name == "baseColorTexture") {
@@ -1035,9 +1000,9 @@ function pdxGltfDataMaterialPbrMetallicRoughness() : pdxGltfDataAbstractBase() c
                     self.addError("material element metallicRoughnessTexture is not a struct");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
         });
         
@@ -1065,21 +1030,21 @@ function pdxGltfDataMaterialNormalTextureInfo() : pdxGltfDataAbstractBase() cons
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "index") {
-                if(!self.copy_integer("index", _value)) {
+                if(!self.copyInteger("index", _value)) {
                     self.addError("material element index is not an integer");
                 }
             } else if(_name == "texCoord") {
-                if(!self.copy_integer("texCoord", _value)) {
+                if(!self.copyInteger("texCoord", _value)) {
                     self.addError("material element texCoord is not an integer");
                 }
             } else if(_name == "scale") {
-                if(!self.copy_float("scale", _value)) {
+                if(!self.copyFloat("scale", _value)) {
                     self.addError("material element scale is not a float");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
         });
         
@@ -1110,21 +1075,21 @@ function pdxGltfDataMaterialOcclusionTextureInfo() : pdxGltfDataAbstractBase() c
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "index") {
-                if(!self.copy_integer("index", _value)) {
+                if(!self.copyInteger("index", _value)) {
                     self.addError("material element index is not an integer");
                 }
             } else if(_name == "texCoord") {
-                if(!self.copy_integer("texCoord", _value)) {
+                if(!self.copyInteger("texCoord", _value)) {
                     self.addError("material element texCoord is not an integer");
                 }
             } else if(_name == "strength") {
-                if(!self.copy_float("strength", _value)) {
+                if(!self.copyFloat("strength", _value)) {
                     self.addError("material element strength is not a float");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
         });
         
@@ -1152,17 +1117,17 @@ function pdxGltfDataTextureInfo() : pdxGltfDataAbstractBase() constructor {
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "index") {
-                if(!self.copy_integer("index", _value)) {
+                if(!self.copyInteger("index", _value)) {
                     self.addError("material element index is not an integer");
                 }
             } else if(_name == "texCoord") {
-                if(!self.copy_integer("texCoord", _value)) {
+                if(!self.copyInteger("texCoord", _value)) {
                     self.addError("material element texCoord is not an integer");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
         });
         if(USE_DEFAULTS) {
@@ -1191,29 +1156,29 @@ function pdxGltfDataSampler() : pdxGltfDataAbstractBase() constructor {
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "name") {
-                if(!self.copy_string("name", _value)) {
+                if(!self.copyString("name", _value)) {
                     self.addError("sampler name is not a string");
                 }
             } else if(_name == "magFilter") { 
-                if(!self.copy_integer("magFilter", _value)) {
+                if(!self.copyInteger("magFilter", _value)) {
                     self.addError("sampler element magFilter is not an integer");
                 }
             } else if(_name == "minFilter") { 
-                if(!self.copy_integer("minFilter", _value)) {
+                if(!self.copyInteger("minFilter", _value)) {
                     self.addError("sampler element minFilter is not an integer");
                 }
             } else if(_name == "wrapS") { 
-                if(!self.copy_integer("wrapS", _value)) {
+                if(!self.copyInteger("wrapS", _value)) {
                     self.addError("sampler element wrapS is not an integer");
                 }
             } else if(_name == "wrapT") { 
-                if(!self.copy_integer("wrapT", _value)) {
+                if(!self.copyInteger("wrapT", _value)) {
                     self.addError("sampler element wrapT is not an integer");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
             
             } );
@@ -1246,11 +1211,11 @@ function pdxGltfDataAccessor() : pdxGltfDataAbstractBase() constructor {
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "name") {
-                if(!self.copy_string("name", _value)) {
+                if(!self.copyString("name", _value)) {
                     self.addError("accessor name is not a string");
                 }
             } else if(_name == "type") {
-                if(!self.copy_string("type", _value)) {
+                if(!self.copyString("type", _value)) {
                     self.addError("accessor type is not a string");
                 }
             } else if(_name == "normalized") {
@@ -1260,36 +1225,36 @@ function pdxGltfDataAccessor() : pdxGltfDataAbstractBase() constructor {
                     self.addError("accessor normalized is not a bool");
                 }
             } else if(_name == "bufferView") { 
-                if(!self.copy_integer("bufferView", _value)) {
+                if(!self.copyInteger("bufferView", _value)) {
                     self.addError("accessor element bufferView is not an integer");
                 }
             } else if(_name == "byteOffset") { 
-                if(!self.copy_integer("byteOffset", _value)) {
+                if(!self.copyInteger("byteOffset", _value)) {
                     self.addError("accessor element byteOffset is not an integer");
                 }
             } else if(_name == "componentType") { 
-                if(!self.copy_integer("componentType", _value)) {
+                if(!self.copyInteger("componentType", _value)) {
                     self.addError("accessor element componentType is not an integer");
                 }
             } else if(_name == "count") { 
-                if(!self.copy_integer("count", _value)) {
+                if(!self.copyInteger("count", _value)) {
                     self.addError("accessor element count is not an integer");
                 }
             } else if(_name == "min") { 
-                if(!self.copy_array("min", _value, "number")) {
+                if(!self.copyArray("min", _value, "number")) {
                     self.addError("Bad Array for accessor element min");
                 }
             } else if(_name == "max") { 
-                if(!self.copy_array("max", _value, "number")) {
+                if(!self.copyArray("max", _value, "number")) {
                     self.addError("Bad Array for accessor element max");
                 }
             } else if(_name == "sparse") { 
                 self.sparse = new pdxGltfDataAccessorSparse();
                 self.sparse.init(_value);
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
             
             } );
@@ -1332,21 +1297,21 @@ function pdxGltfDataBuffer() : pdxGltfDataAbstractBase() constructor {
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "byteLength") {
-                if(!self.copy_integer("byteLength", _value)) {
+                if(!self.copyInteger("byteLength", _value)) {
                     self.addError("buffer element byteLength is not an integer");
                 }
             } else if(_name == "name") {
-                if(!self.copy_string("name", _value)) {
+                if(!self.copyString("name", _value)) {
                     self.addError("buffer element name is not a string");
                 }
             } else if(_name == "uri") {
-                if(!self.copy_string("uri", _value)) {
+                if(!self.copyString("uri", _value)) {
                     self.addError("buffer element uri is not a string");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
         });
 
@@ -1371,33 +1336,33 @@ function pdxGltfDataBufferView() : pdxGltfDataAbstractBase() constructor {
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "buffer") {
-                if(!self.copy_integer("buffer", _value)) {
+                if(!self.copyInteger("buffer", _value)) {
                     self.addError("bufferView element buffer is not an integer");
                 }
             } else if(_name == "byteOffset") {
-                if(!self.copy_integer("byteOffset", _value)) {
+                if(!self.copyInteger("byteOffset", _value)) {
                     self.addError("bufferView element byteOffset is not an integer");
                 }
             } else if(_name == "byteLength") {
-                if(!self.copy_integer("byteLength", _value)) {
+                if(!self.copyInteger("byteLength", _value)) {
                     self.addError("bufferView element byteLength is not an integer");
                 }
             } else if(_name == "byteStride") {
-                if(!self.copy_integer("byteStride", _value)) {
+                if(!self.copyInteger("byteStride", _value)) {
                     self.addError("bufferView element byteStride is not an integer");
                 }
             } else if(_name == "target") {
-                if(!self.copy_integer("target", _value)) {
+                if(!self.copyInteger("target", _value)) {
                     self.addError("bufferView element target is not an integer");
                 }
             } else if(_name == "name") {
-                if(!self.copy_string("name", _value)) {
+                if(!self.copyString("name", _value)) {
                     self.addError("bufferView element name is not a string");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
         });
         
@@ -1447,25 +1412,25 @@ function pdxGltfDataImage() : pdxGltfDataAbstractBase() constructor {
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "bufferView") {
-                if(!self.copy_integer("bufferView", _value)) {
+                if(!self.copyInteger("bufferView", _value)) {
                     self.addError("image element bufferView is not an integer");
                 }
             } else if(_name == "name") {
-                if(!self.copy_string("name", _value)) {
+                if(!self.copyString("name", _value)) {
                     self.addError("image element name is not a string");
                 }
             } else if(_name == "uri") {
-                if(!self.copy_string("uri", _value)) {
+                if(!self.copyString("uri", _value)) {
                     self.addError("image element uri is not a string");
                 }
             } else if(_name == "mimeType") {
-                if(!self.copy_string("mimeType", _value)) {
+                if(!self.copyString("mimeType", _value)) {
                     self.addError("image element mimeType is not a string");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
         });
     }
@@ -1483,21 +1448,21 @@ function pdxGltfDataTexture() : pdxGltfDataAbstractBase() constructor {
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "name") {
-                if(!self.copy_string("name", _value)) {
+                if(!self.copyString("name", _value)) {
                     self.addError("texture name is not a string");
                 }
             } else if(_name == "sampler") { 
-                if(!self.copy_integer("sampler", _value)) {
+                if(!self.copyInteger("sampler", _value)) {
                     self.addError("texture element sampler is not an integer");
                 }
             } else if(_name == "source") { 
-                if(!self.copy_integer("source", _value)) {
+                if(!self.copyInteger("source", _value)) {
                     self.addError("texture element source is not an integer");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
             
             } );
@@ -1516,7 +1481,7 @@ function pdxGltfDataAccessorSparse() : pdxGltfDataAbstractBase() constructor {
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "count") {
-                if(!self.copy_integer("count", _value)) {
+                if(!self.copyInteger("count", _value)) {
                     self.addError("accessor.sparse element count is not an integer");
                 }
             } else if(_name == "indices") { 
@@ -1534,9 +1499,9 @@ function pdxGltfDataAccessorSparse() : pdxGltfDataAbstractBase() constructor {
                     self.addError("accessor.values element indices is not a struct");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
             
             } );
@@ -1566,21 +1531,21 @@ function pdxGltfDataAccessorSparseIndices() : pdxGltfDataAbstractBase() construc
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "bufferView") {
-                if(!self.copy_integer("bufferView", _value)) {
+                if(!self.copyInteger("bufferView", _value)) {
                     self.addError("accessor.sparse.indicies element bufferView is not an integer");
                 }
             } else if(_name == "byteOffset") {
-                if(!self.copy_integer("bufferView", _value)) {
+                if(!self.copyInteger("bufferView", _value)) {
                     self.addError("accessor.sparse.indicies element byteOffset is not an integer");
                 }
             } else if(_name == "componentType") {
-                if(!self.copy_integer("componentType", _value)) {
+                if(!self.copyInteger("componentType", _value)) {
                     self.addError("accessor.sparse.indicies element componentType is not an integer");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
             
             } );
@@ -1607,17 +1572,17 @@ function pdxGltfDataAccessorSparseValues() : pdxGltfDataAbstractBase() construct
         }
         struct_foreach(object, function(_name, _value) {
             if(_name == "bufferView") {
-                if(!self.copy_integer("bufferView", _value)) {
+                if(!self.copyInteger("bufferView", _value)) {
                     self.addError("accessor.sparse.values element bufferView is not an integer");
                 }
             } else if(_name == "byteOffset") {
-                if(!self.copy_integer("bufferView", _value)) {
+                if(!self.copyInteger("bufferView", _value)) {
                     self.addError("accessor.sparse.values element byteOffset is not an integer");
                 }
             } else if(_name == "extensions") {
-                self.copy_extensions(_value);
+                self.copyExtensions(_value);
             } else if(_name == "extras") {
-                self.copy_extras(_value);
+                self.copyExtras(_value);
             }
             
             } );
