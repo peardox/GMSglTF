@@ -100,7 +100,7 @@ function is_string_numeric(s) {
     return true;
 }
 
-function nextsequence(path, base, ext, digits = 3) {
+function nextSequence(path, base, ext, digits = 3) {
     var _i = 0
     path = string_trim(path);
     base = string_trim(base);
@@ -120,7 +120,7 @@ function nextsequence(path, base, ext, digits = 3) {
 }
 
 function pdxException() constructor {
-    static add_error = function(errmsg) {
+    static addError = function(errmsg) {
         if(global.pdxThrowNotReturn) {
             throw(errmsg);                
         }        
@@ -131,7 +131,7 @@ function pdxException() constructor {
         self.error += string(errmsg) + "\n";
     }
     
-    static add_warning = function(errmsg) {
+    static addWarning = function(errmsg) {
         if(!struct_exists(self, "warning")) {
             self.warning = "";
             global.pdxGlobalGltfWarningFlag = true;
@@ -148,14 +148,14 @@ function pdxException() constructor {
         
     }
     
-    static has_errors = function() {
+    static hasErrors = function() {
         if(struct_exists(self, "error")) {
             return true;
         }
        return false;
     }
     
-    static has_warnings = function() {
+    static hasWarnings = function() {
         if(struct_exists(self, "warning")) {
             return true;
         }
@@ -187,11 +187,11 @@ function pdxImage() : pdxException() constructor {
     static load_from_buffer = function(inbuf, buffer_offset, buffer_length, texturegoup) {
         // Before we do anything check the buffer is a buffer and it has spave for the image to read
         if(!buffer_exists(inbuf)) {
-            self.add_error("Buffer does not exist");
+            self.addError("Buffer does not exist");
             return false;    
         }
         if( buffer_get_size(inbuf) < (buffer_offset + buffer_length) ) {
-            self.add_error("Buffer is too small");
+            self.addError("Buffer is too small");
             return false;
         }
         global.pdxLastImageIndex++;
@@ -200,7 +200,7 @@ function pdxImage() : pdxException() constructor {
         
         self.buffer = buffer_create(buffer_length, buffer_fixed, 1);
         if(self.buffer == -1) {
-            self.add_error("Unknown Buffer error");
+            self.addError("Unknown Buffer error");
             return false;
         }
         
@@ -219,7 +219,7 @@ function pdxImage() : pdxException() constructor {
 /// @desc Normalise a path
 /// @param {string} path Path to normalize
 /// @returns {string} Normalized path
-function normalise_path(path) {
+function normalisePath(path) {
     var rpath = string_replace_all(path, "\\", "/");
     while(string_ends_with(rpath, "/")) {
         rpath = string_copy(rpath, 1, string_length(rpath) - 1);
@@ -228,7 +228,7 @@ function normalise_path(path) {
     return rpath + "/";
 }
 
-function get_file_parts(filename, delim = "/") {
+function getFileParts(filename, delim = "/") {
     var parts = {
         path: "",
         name: "",
@@ -270,10 +270,10 @@ function get_file_parts(filename, delim = "/") {
     return parts;
 }
 
-function open_model(filename) {
+function openModel(filename) {
     var _rval = false;
     var _amodel = undefined;
-    var _parts = get_file_parts(filename);
+    var _parts = getFileParts(filename);
         
     if(_parts.extension == "glb") {
         _amodel = new pdxGltf();
@@ -294,9 +294,9 @@ function open_model(filename) {
     return _rval;
 }
 
-function find_models(dir) {
+function findModels(dir) {
     var files = false;
-    var sdir = normalise_path(dir);
+    var sdir = normalisePath(dir);
 
     if(directory_exists(sdir)) {
         var file_name = file_find_first(sdir + "*", fa_readonly | fa_archive | fa_none);
@@ -306,7 +306,7 @@ function find_models(dir) {
                 files = array_create(0);
             }
             
-            var ftype = get_file_parts(sdir + file_name);
+            var ftype = getFileParts(sdir + file_name);
             if(array_contains(["glb", "gltf"],ftype.extension)) {
                 array_push(files, file_name);
             }

@@ -56,12 +56,12 @@ if(amodel) {
             }
             draw_text(20, 380, "skins : "       + string(array_length(amodel_data.skins)             ) + " : " + string(amodel_data.skins)             );
         
-            if(amodel_data.has_errors()) {
+            if(amodel_data.hasErrors()) {
                 draw_text(20, 420, "*** Errors *** : " + string(amodel_data.error));
             } else {
                 draw_text(20, 420, "No Errors");
             }
-            if(amodel_data.has_warnings()) {
+            if(amodel_data.hasWarnings()) {
                 draw_text(20, 440, "*** Warnings *** : " + string(amodel_data.warning));
             } else {
                 draw_text(20, 440, "No Warnings");
@@ -118,11 +118,11 @@ if(amodel) {
             if(model_errors != "") {
                 draw_text(20, 80, model_errors);
             }
-            if(amodel.has_errors()) {
+            if(amodel.hasErrors()) {
                 draw_text(800, 40, "Error");
                 draw_text(800, 80, amodel.error);
             }
-            if(amodel.has_warnings()) {
+            if(amodel.hasWarnings()) {
                 draw_text(1600, 40, "Warning");
                 draw_text(1600, 80, amodel.warning);
             }

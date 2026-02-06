@@ -83,7 +83,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         self.errval = false;
         var text = "Assets\n\n";        
         var ec = 0;     
-        if(self.data.asset.has_errors()) {
+        if(self.data.asset.hasErrors()) {
             text += self.data.asset.error;
             ec++;
             self.errval = false;
@@ -94,7 +94,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         text += "\nScenes (" + string(self.counts.scenes) + ")\n\n";   
         ec = 0;     
         for(var _i =0; _i < self.counts.scenes; _i++) {
-            if(self.data.scenes[_i].has_errors()) {
+            if(self.data.scenes[_i].hasErrors()) {
                 text += self.data.scenes[_i].error;
                 ec++;
                 self.errval = false;
@@ -107,7 +107,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         text += "\nNodes (" + string(self.counts.nodes) + ")\n\n";
         ec = 0;     
         for(var _i =0; _i < self.counts.nodes; _i++) {
-            if(self.data.nodes[_i].has_errors()) {
+            if(self.data.nodes[_i].hasErrors()) {
                 text += self.data.nodes[_i].error;
                 ec++;
                 self.errval = false;
@@ -120,7 +120,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         text += "\nMaterials (" + string(self.counts.materials) + ")\n\n";
         ec = 0;     
         for(var _i =0; _i < self.counts.materials; _i++) {
-            if(self.data.materials[_i].has_errors()) {
+            if(self.data.materials[_i].hasErrors()) {
                 text += self.data.materials[_i].error;
                 ec++;
                 self.errval = false;
@@ -133,7 +133,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         text += "\nMeshes (" + string(self.counts.meshes) + ")\n\n";
         ec = 0;     
         for(var _i =0; _i < self.counts.meshes; _i++) {
-            if(self.data.meshes[_i].has_errors()) {
+            if(self.data.meshes[_i].hasErrors()) {
                 text += self.data.meshes[_i].error;
                 ec++;
                 self.errval = false;
@@ -146,7 +146,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         text += "\nImages (" + string(self.counts.images) + ")\n\n";
         ec = 0;     
         for(var _i =0; _i < self.counts.images; _i++) {
-            if(self.data.images[_i].has_errors()) {
+            if(self.data.images[_i].hasErrors()) {
                 text += self.data.images[_i].error;
                 ec++;
                 self.errval = false;
@@ -159,7 +159,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         text += "\nAccessors (" + string(self.counts.accessors) + ")\n\n";
         ec = 0;     
         for(var _i =0; _i < self.counts.accessors; _i++) {
-            if(self.data.accessors[_i].has_errors()) {
+            if(self.data.accessors[_i].hasErrors()) {
                 text += self.data.accessors[_i].error;
                 ec++;
                 self.errval = false;
@@ -172,7 +172,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         text += "\nBufferViews (" + string(self.counts.bufferViews) + ")\n\n";
         ec = 0;     
         for(var _i =0; _i < self.counts.bufferViews; _i++) {
-            if(self.data.bufferViews[_i].has_errors()) {
+            if(self.data.bufferViews[_i].hasErrors()) {
                 text += self.data.bufferViews[_i].error;
                 ec++;
                 self.errval = false;
@@ -213,7 +213,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
                     rval = -1;
                 }
             } else {
-                self.add_error("File not found : " + uri);
+                self.addError("File not found : " + uri);
             }
         }
         
@@ -302,7 +302,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         
         if(structHas(mesh, "weights")) {
             self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "weights : " + string(mesh.weights) + "\n");
-            self.add_warning("ToDo : Mesh weights not implemented yet");
+            self.addWarning("ToDo : Mesh weights not implemented yet");
         }
         
         
@@ -317,7 +317,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
             if(node.mesh < self.counts.meshes) {
                 self.processMesh(self.data.meshes[node.mesh], depth + 1);
             } else {
-                self.add_error("Bad mesh index (" + string(node.mesh) + ")");
+                self.addError("Bad mesh index (" + string(node.mesh) + ")");
             }
         }
         
@@ -328,44 +328,44 @@ function pdxGLTFBase(): pdxModelFile() constructor {
                 if(child < self.counts.nodes) {
                     self.processNode(self.data.nodes[child], depth + 1);
                 } else {
-                    self.add_error("Bad node index (" + string(child) + ")");
+                    self.addError("Bad node index (" + string(child) + ")");
                 }
             }
         }
         
         if(structHas(node, "camera")) {
             self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "camera : " + string(node.camera) + "\n");
-            self.add_warning("ToDo : Node camera not implemented yet");
+            self.addWarning("ToDo : Node camera not implemented yet");
         }
         
         if(structHas(node, "skin")) {
             self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "skin : " + string(node.skin) + "\n");
-            self.add_warning("ToDo : Node skin not implemented yet");
+            self.addWarning("ToDo : Node skin not implemented yet");
         }
         
         if(structHas(node, "matrix")) {
             self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "matrix : " + string(node.matrix) + "\n");
-            self.add_warning("ToDo : Node matrix not implemented yet");
+            self.addWarning("ToDo : Node matrix not implemented yet");
         }
         
         if(structHas(node, "rotation")) {
             self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "rotation : " + string(node.rotation) + "\n");
-            self.add_warning("ToDo : Node rotation not implemented yet : " +  + string(node.rotation));
+            self.addWarning("ToDo : Node rotation not implemented yet : " +  + string(node.rotation));
         }
         
         if(structHas(node, "scale")) {
             self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "scale : " + string(node.scale) + "\n");
-            self.add_warning("ToDo : Node scale not implemented yet");
+            self.addWarning("ToDo : Node scale not implemented yet");
         }
         
         if(structHas(node, "translation")) {
             self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "translation : " + string(node.translation) + "\n");
-            self.add_warning("ToDo : Node translation not implemented yet");
+            self.addWarning("ToDo : Node translation not implemented yet");
         }
         
         if(structHas(node, "weights")) {
             self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "weights : " + string(node.weights) + "\n");
-            self.add_warning("ToDo : Node weights not implemented yet");
+            self.addWarning("ToDo : Node weights not implemented yet");
         }
     }    
     
@@ -383,7 +383,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
                 if(_node < self.counts.nodes) {
                     self.processNode(self.data.nodes[_node], depth + 1);
                 } else {
-                    self.add_error("Bad node index (" + string(_node) + ")");
+                    self.addError("Bad node index (" + string(_node) + ")");
                 }
             }
         }
@@ -581,7 +581,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
             }
         } else {
             // Otherwise the image is in  BufferView
-            self.add_warning("*** Using buffered image ***");
+            self.addWarning("*** Using buffered image ***");
             /*
             if(struct_exists(self, "binbuffer")) {
                 if(!is_undefined(self.binbuffer)) {
@@ -656,7 +656,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         if(struct_exists(self, "binbuffer")) {
             // binbuffer only exists for GLB. Check that if it existed it has been consumed
             if(!is_undefined(self.binbuffer)) {
-                self.add_error("GLB buffer not used");
+                self.addError("GLB buffer not used");
             }
          }
     }
@@ -758,15 +758,15 @@ function pdxGltf(): pdxGLTFBase() constructor {
             var _version = buffer_read(_buffer, buffer_u32); 
             var _length = buffer_read(_buffer, buffer_u32);
             if(_magic <> 0x46546C67) {
-                self.add_error("glTF magic wrong");
+                self.addError("glTF magic wrong");
                 return false;
             }
             if(_version <> 2) {
-                self.add_error("glTF version wrong");
+                self.addError("glTF version wrong");
                 return false;
             }
             if(_length <> _bsize) {
-                self.add_error("glTF length wrong");
+                self.addError("glTF length wrong");
                 return false;
             }
             
@@ -774,7 +774,7 @@ function pdxGltf(): pdxGLTFBase() constructor {
                 var _chunk_length = buffer_read(_buffer, buffer_u32);
                 var _chunk_type = buffer_read(_buffer, buffer_u32);
                 if((buffer_tell(_buffer) + _chunk_length) > _bsize) {
-                    self.add_error("glTF buffer read overflow");
+                    self.addError("glTF buffer read overflow");
                     return false;
                 }
                 switch(_chunk_type) {

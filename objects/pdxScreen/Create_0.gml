@@ -58,9 +58,9 @@ wd = "C:\\src\\GMSglTF\\datafiles\\";
 // wd = "C:\\git\\glTF-Sample-Assets\\Models\\";
 
 model_file = wd + _fn;
-amodel = open_model(model_file);
+amodel = openModel(model_file);
 
-//amodel = open_model(working_directory + _fn);
+//amodel = openModel(working_directory + _fn);
 if(amodel) {
     amodel.read();
     amodel.build();
@@ -72,4 +72,4 @@ if(amodel) {
 
 }
 
-files = find_models(wd + "glb");
+files = findModels(wd + "glb");
