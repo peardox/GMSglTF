@@ -65,7 +65,7 @@ if(amodel) {
     amodel.read();
     amodel.build();
     
-    model_errors = amodel.gather_errors();
+    model_errors = amodel.gatherErrors();
     if(amodel.errval) {
         gui_mode = 2;
     }

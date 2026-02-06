@@ -19,9 +19,9 @@ function pdxModelFile() : pdxException() constructor {
 
 function pdxGLTFBase(): pdxModelFile() constructor {
     self.json = undefined;
-    self.load_time = 0;
-    self.read_time = 0;
-    self.process_time = 0;
+    self.loadTime = 0;
+    self.readTime = 0;
+    self.processTime = 0;
     self.errval = false;
     self.data = undefined;
 
@@ -53,33 +53,33 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         images: 0 
     }
     
-    static get_count = function(object, element) {
+    static getCount = function(object, element) {
         if(is_array(object[$ element])) {
             return array_length(object[$ element]);
         } else {
             return 0;
         }
     }
-    static create_counts = function() {
-        self.counts.asset =              self.get_count(self.data, "asset");
-        self.counts.extensionsRequired = self.get_count(self.data, "extensionsRequired");
-        self.counts.extensionsUsed =     self.get_count(self.data, "extensionsUsed");
-        self.counts.scenes =             self.get_count(self.data, "scenes");
-        self.counts.nodes =              self.get_count(self.data, "nodes");
-        self.counts.materials =          self.get_count(self.data, "materials");
-        self.counts.meshes =             self.get_count(self.data, "meshes");
-        self.counts.textures =           self.get_count(self.data, "textures");
-        self.counts.accessors =          self.get_count(self.data, "accessors");
-        self.counts.bufferViews =        self.get_count(self.data, "bufferViews");
-        self.counts.samplers =           self.get_count(self.data, "samplers");
-        self.counts.buffers =            self.get_count(self.data, "buffers");
-        self.counts.animations =         self.get_count(self.data, "animations");
-        self.counts.skins =              self.get_count(self.data, "skins");
-        self.counts.cameras =            self.get_count(self.data, "cameras");
-        self.counts.images =             self.get_count(self.data, "images");
+    static createCounts = function() {
+        self.counts.asset =              self.getCount(self.data, "asset");
+        self.counts.extensionsRequired = self.getCount(self.data, "extensionsRequired");
+        self.counts.extensionsUsed =     self.getCount(self.data, "extensionsUsed");
+        self.counts.scenes =             self.getCount(self.data, "scenes");
+        self.counts.nodes =              self.getCount(self.data, "nodes");
+        self.counts.materials =          self.getCount(self.data, "materials");
+        self.counts.meshes =             self.getCount(self.data, "meshes");
+        self.counts.textures =           self.getCount(self.data, "textures");
+        self.counts.accessors =          self.getCount(self.data, "accessors");
+        self.counts.bufferViews =        self.getCount(self.data, "bufferViews");
+        self.counts.samplers =           self.getCount(self.data, "samplers");
+        self.counts.buffers =            self.getCount(self.data, "buffers");
+        self.counts.animations =         self.getCount(self.data, "animations");
+        self.counts.skins =              self.getCount(self.data, "skins");
+        self.counts.cameras =            self.getCount(self.data, "cameras");
+        self.counts.images =             self.getCount(self.data, "images");
     }
     
-    static gather_errors = function() {
+    static gatherErrors = function() {
         self.errval = false;
         var text = "Assets\n\n";        
         var ec = 0;     
@@ -185,14 +185,18 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         return text;
     }
     
-    static add_tree = function(txt) {
+    static addTreeMesh = function(txt) {
         self.tree[0] += txt;
+    }
+
+    static addTreeMaterial = function(txt) {
+        self.tree[1] += txt;
     }
 
     static free = function() {
     }
     
-    static load_uri_buffer = function(uri) {
+    static loadUriBuffer = function(uri) {
         var rval = -1;
         
         if(string_starts_with(uri, "data:")) {
@@ -216,7 +220,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         return rval;
     }
     
-    static struct_has = function(object, key) {
+    static structHas = function(object, key) {
         if(struct_exists(object, key)) {
             if(is_undefined(object[$ key])) {
                 return false;
@@ -228,156 +232,156 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         return false;
     }
     
-    static process_attributes = function(attributes, depth = 0) {
-        if(struct_has(attributes, "POSITION")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "POSITION : " + string(attributes.POSITION) + "\n");
+    static processAttributes = function(attributes, depth = 0) {
+        if(structHas(attributes, "POSITION")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "POSITION : " + string(attributes.POSITION) + "\n");
         }
-        if(struct_has(attributes, "NORMAL")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "NORMAL   : " + string(attributes.NORMAL) + "\n");
+        if(structHas(attributes, "NORMAL")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "NORMAL   : " + string(attributes.NORMAL) + "\n");
         }
-        if(struct_has(attributes, "TANGENT")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "TANGENT  : " + string(attributes.TANGENT) + "\n");
+        if(structHas(attributes, "TANGENT")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "TANGENT  : " + string(attributes.TANGENT) + "\n");
         }
-        if(struct_has(attributes, "texcoord")) {
+        if(structHas(attributes, "texcoord")) {
             var _al = array_length(attributes.texcoord);
             for(var _i=0; _i< _al; _i++) {
-                self.add_tree(string_repeat(" ", depth * TABSIZE) + "TEXCOORD_" + string(_i) + " : " + string(attributes.texcoord[_i]) + "\n");
+                self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "TEXCOORD_" + string(_i) + " : " + string(attributes.texcoord[_i]) + "\n");
             }
         }
-        if(struct_has(attributes, "color")) {
+        if(structHas(attributes, "color")) {
             var _al = array_length(attributes.texcoord);
             for(var _i=0; _i< _al; _i++) {
-                self.add_tree(string_repeat(" ", depth * TABSIZE) + "COLOR_" + string(_i) + " : " + string(attributes.color[_i]) + "\n");
+                self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "COLOR_" + string(_i) + " : " + string(attributes.color[_i]) + "\n");
             }
         }
-        if(struct_has(attributes, "joints")) {
+        if(structHas(attributes, "joints")) {
             var _al = array_length(attributes.joints);
             for(var _i=0; _i< _al; _i++) {
-                self.add_tree(string_repeat(" ", depth * TABSIZE) + "JOINTS_" + string(_i) + " : " + string(attributes.joints[_i]) + "\n");
+                self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "JOINTS_" + string(_i) + " : " + string(attributes.joints[_i]) + "\n");
             }
         }
-        if(struct_has(attributes, "weights")) {
+        if(structHas(attributes, "weights")) {
             var _al = array_length(attributes.weights);
             for(var _i=0; _i< _al; _i++) {
-                self.add_tree(string_repeat(" ", depth * TABSIZE) + "WEIGHTS_" + string(_i) + " : " + string(attributes.weights[_i]) + "\n");
+                self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "WEIGHTS_" + string(_i) + " : " + string(attributes.weights[_i]) + "\n");
             }
         }
     }
     
-    static process_primitive = function(primitive, depth = 0) {
-        if(struct_has(primitive, "attributes")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "Attributes" + "\n");
-            self.process_attributes(primitive.attributes, depth + 1);
+    static processPrimitive = function(primitive, depth = 0) {
+        if(structHas(primitive, "attributes")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "Attributes" + "\n");
+            self.processAttributes(primitive.attributes, depth + 1);
         }
-        if(struct_has(primitive, "indices")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "indices  : " + string(primitive.indices) + "\n");
+        if(structHas(primitive, "indices")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "indices  : " + string(primitive.indices) + "\n");
         }
-        if(struct_has(primitive, "material")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "material : " + string(primitive.material) + "\n");
+        if(structHas(primitive, "material")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "material : " + string(primitive.material) + "\n");
         }
-        if(struct_has(primitive, "mode")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "mode     : " + string(primitive.mode) + "\n");
+        if(structHas(primitive, "mode")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "mode     : " + string(primitive.mode) + "\n");
         }
-        if(struct_has(primitive, "targets")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "targets  : " + string(primitive.targets) + "\n");
+        if(structHas(primitive, "targets")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "targets  : " + string(primitive.targets) + "\n");
         }
         array_push(self.vertexBuffer, primitive);
     }
     
-    static process_mesh = function(mesh, depth = 0) {
-        if(struct_has(mesh, "name")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "Mesh : " + mesh.name + "\n");
+    static processMesh = function(mesh, depth = 0) {
+        if(structHas(mesh, "name")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "Mesh : " + mesh.name + "\n");
         }
         
-        if(struct_has(mesh, "primitives")) {
+        if(structHas(mesh, "primitives")) {
             var _al = array_length(mesh.primitives);
             for(var _i = 0; _i < _al; _i++) {
-                self.process_primitive(mesh.primitives[_i], depth + 1);
+                self.processPrimitive(mesh.primitives[_i], depth + 1);
             }
         }
         
-        if(struct_has(mesh, "weights")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "weights : " + string(mesh.weights) + "\n");
+        if(structHas(mesh, "weights")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "weights : " + string(mesh.weights) + "\n");
             self.add_warning("ToDo : Mesh weights not implemented yet");
         }
         
         
     }
         
-    static process_node = function(node, depth = 0) {
-        if(struct_has(node, "name")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "Node : " + node.name + "\n");
+    static processNode = function(node, depth = 0) {
+        if(structHas(node, "name")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "Node : " + node.name + "\n");
         }
         
-        if(struct_has(node, "mesh")) {
+        if(structHas(node, "mesh")) {
             if(node.mesh < self.counts.meshes) {
-                self.process_mesh(self.data.meshes[node.mesh], depth + 1);
+                self.processMesh(self.data.meshes[node.mesh], depth + 1);
             } else {
                 self.add_error("Bad mesh index (" + string(node.mesh) + ")");
             }
         }
         
-        if(struct_has(node, "children")) {
+        if(structHas(node, "children")) {
             var _al = array_length(node.children);
             for(var _i = 0; _i < _al; _i++) {
                 var child = node.children[_i];
                 if(child < self.counts.nodes) {
-                    self.process_node(self.data.nodes[child], depth + 1);
+                    self.processNode(self.data.nodes[child], depth + 1);
                 } else {
                     self.add_error("Bad node index (" + string(child) + ")");
                 }
             }
         }
         
-        if(struct_has(node, "camera")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "camera : " + string(node.camera) + "\n");
+        if(structHas(node, "camera")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "camera : " + string(node.camera) + "\n");
             self.add_warning("ToDo : Node camera not implemented yet");
         }
         
-        if(struct_has(node, "skin")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "skin : " + string(node.skin) + "\n");
+        if(structHas(node, "skin")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "skin : " + string(node.skin) + "\n");
             self.add_warning("ToDo : Node skin not implemented yet");
         }
         
-        if(struct_has(node, "matrix")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "matrix : " + string(node.matrix) + "\n");
+        if(structHas(node, "matrix")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "matrix : " + string(node.matrix) + "\n");
             self.add_warning("ToDo : Node matrix not implemented yet");
         }
         
-        if(struct_has(node, "rotation")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "rotation : " + string(node.rotation) + "\n");
+        if(structHas(node, "rotation")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "rotation : " + string(node.rotation) + "\n");
             self.add_warning("ToDo : Node rotation not implemented yet : " +  + string(node.rotation));
         }
         
-        if(struct_has(node, "scale")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "scale : " + string(node.scale) + "\n");
+        if(structHas(node, "scale")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "scale : " + string(node.scale) + "\n");
             self.add_warning("ToDo : Node scale not implemented yet");
         }
         
-        if(struct_has(node, "translation")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "translation : " + string(node.translation) + "\n");
+        if(structHas(node, "translation")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "translation : " + string(node.translation) + "\n");
             self.add_warning("ToDo : Node translation not implemented yet");
         }
         
-        if(struct_has(node, "weights")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "weights : " + string(node.weights) + "\n");
+        if(structHas(node, "weights")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "weights : " + string(node.weights) + "\n");
             self.add_warning("ToDo : Node weights not implemented yet");
         }
     }    
     
-    static process_scene = function(scene, depth = 0) {
-        if(struct_has(scene, "name")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "Scene : " + scene.name + "\n");
+    static processScene = function(scene, depth = 0) {
+        if(structHas(scene, "name")) {
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "Scene : " + scene.name + "\n");
         } else {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "Scene : <no name>\n");
+            self.addTreeMesh(string_repeat(" ", depth * TABSIZE) + "Scene : <no name>\n");
         }
 
-        if(struct_has(scene, "nodes")) {
+        if(structHas(scene, "nodes")) {
             var _al = array_length(scene.nodes);
             for(var _i = 0; _i < _al; _i++) {
                 var _node = scene.nodes[_i];
                 if(_node < self.counts.nodes) {
-                    self.process_node(self.data.nodes[_node], depth + 1);
+                    self.processNode(self.data.nodes[_node], depth + 1);
                 } else {
                     self.add_error("Bad node index (" + string(_node) + ")");
                 }
@@ -419,10 +423,10 @@ function pdxGLTFBase(): pdxModelFile() constructor {
      
     static processAccessor = function(accessor, index) {
         var new_struct = self.createVariableType(accessor.type, accessor.count, accessor.componentType);
-        if(struct_has(accessor, "bufferView")) {
+        if(structHas(accessor, "bufferView")) {
             // If we have a bufferView read it in
             var view = self.data.bufferViews[accessor.bufferView];
-            if(struct_has(view, "target")) {
+            if(structHas(view, "target")) {
                 new_struct.target = view.target;
             }
             if(view.buffer < self.counts.bufferViews) {
@@ -438,7 +442,7 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         }
   
         // Needs checking  
-        if(struct_has(accessor, "sparse")) {
+        if(structHas(accessor, "sparse")) {
             new_struct.addSparse(accessor.sparse.count);
 
             new_struct.sparse.indices = self.createVariableType("SCALAR", accessor.sparse.count, accessor.sparse.indices.componentType);
@@ -476,16 +480,16 @@ function pdxGLTFBase(): pdxModelFile() constructor {
 */
 
     static processMaterialNormalTexture = function(normalTexture, depth = 0) {
-        self.add_tree(string_repeat(" ", depth * TABSIZE) + "normalTexture" + "\n");
+        self.addTreeMaterial(string_repeat(" ", depth * TABSIZE) + "normalTexture" + "\n");
         
-        if(struct_has(normalTexture, "index")) {
-            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "index : " + string(normalTexture.index) + "\n");
+        if(structHas(normalTexture, "index")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "index : " + string(normalTexture.index) + "\n");
         }
-        if(struct_has(normalTexture, "texCoord")) {
-            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "texCoord : " + string(normalTexture.texCoord) + "\n");
+        if(structHas(normalTexture, "texCoord")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "texCoord : " + string(normalTexture.texCoord) + "\n");
         }
-        if(struct_has(normalTexture, "texCoord")) {
-            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "texCoord : " + string(normalTexture.texCoord) + "\n");
+        if(structHas(normalTexture, "texCoord")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "texCoord : " + string(normalTexture.texCoord) + "\n");
         }
     }
 
@@ -497,21 +501,22 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     self.metallicRoughnessTexture        = undefined;    // textureInfo                     The metallic-roughness texture.                         No
 */        
     static processMaterialPbrMetallicRoughness = function(pbrMetallicRoughness, depth = 0) {
-        self.add_tree(string_repeat(" ", depth * TABSIZE) + "pbrMetallicRoughness" + "\n");
-        if(struct_has(pbrMetallicRoughness, "baseColorFactor")) {
-            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "baseColorFactor : " + string(pbrMetallicRoughness.baseColorFactor) + "\n");
+        self.addTreeMaterial(string_repeat(" ", depth * TABSIZE) + "pbrMetallicRoughness" + "\n");
+        
+        if(structHas(pbrMetallicRoughness, "baseColorFactor")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "baseColorFactor : " + string(pbrMetallicRoughness.baseColorFactor) + "\n");
         }
-        if(struct_has(pbrMetallicRoughness, "metallicFactor")) {
-            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "metallicFactor : " + string(pbrMetallicRoughness.metallicFactor) + "\n");
+        if(structHas(pbrMetallicRoughness, "metallicFactor")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "metallicFactor : " + string(pbrMetallicRoughness.metallicFactor) + "\n");
         }
-        if(struct_has(pbrMetallicRoughness, "roughnessFactor")) {
-            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "roughnessFactor : " + string(pbrMetallicRoughness.roughnessFactor) + "\n");
+        if(structHas(pbrMetallicRoughness, "roughnessFactor")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "roughnessFactor : " + string(pbrMetallicRoughness.roughnessFactor) + "\n");
         }
-        if(struct_has(pbrMetallicRoughness, "baseColorTexture")) {
-            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "baseColorTexture : " + string(pbrMetallicRoughness.baseColorTexture) + "\n");
+        if(structHas(pbrMetallicRoughness, "baseColorTexture")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "baseColorTexture : " + string(pbrMetallicRoughness.baseColorTexture) + "\n");
         }
-        if(struct_has(pbrMetallicRoughness, "metallicRoughnessTexture")) {
-            self.add_tree(string_repeat(" ", (depth + 1) * TABSIZE) + "metallicRoughnessTexture : " + string(pbrMetallicRoughness.metallicRoughnessTexture) + "\n");
+        if(structHas(pbrMetallicRoughness, "metallicRoughnessTexture")) {
+            self.addTreeMaterial(string_repeat(" ", (depth + 1) * TABSIZE) + "metallicRoughnessTexture : " + string(pbrMetallicRoughness.metallicRoughnessTexture) + "\n");
         }
     }
     
@@ -526,29 +531,29 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     self.alphaCutoff                     = undefined;    // number                          The alpha cutoff value of the material.                 No, default: 0.5
     self.doubleSided                     = undefined;    // boolean                         Specifies whether the material is double sided.         No
 */
-    static process_material = function(material, index, depth = 0) {
-        if(struct_has(material, "name")) {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "Material : " + material.name + "\n");
+    static processMaterial = function(material, index, depth = 0) {
+        if(structHas(material, "name")) {
+            self.addTreeMaterial(string_repeat(" ", depth * TABSIZE) + "Material : " + material.name + "\n");
         } else {
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "Material : <UNNAMED>\n");
+            self.addTreeMaterial(string_repeat(" ", depth * TABSIZE) + "Material : <UNNAMED>\n");
         }
         
-        if(struct_has(material, "pbrMetallicRoughness")) {
+        if(structHas(material, "pbrMetallicRoughness")) {
             self.processMaterialPbrMetallicRoughness(material.pbrMetallicRoughness, depth + 1);
         }
         
-        if(struct_has(material, "normalTexture")) {
+        if(structHas(material, "normalTexture")) {
             self.processMaterialNormalTexture(material.normalTexture, depth + 1);
         }
         
-        if(struct_has(material, "occlusionTexture")) {
+        if(structHas(material, "occlusionTexture")) {
             // self.processMaterialOcclusionTexture(material.occlusionTexture, depth + 1);
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "occlusionTexture" + "\n");
+            self.addTreeMaterial(string_repeat(" ", depth * TABSIZE) + "occlusionTexture" + "\n");
         }
         
-        if(struct_has(material, "emissiveTexture")) {
+        if(structHas(material, "emissiveTexture")) {
             // self.processMaterialTexture(material.emissiveTexture, depth + 1);
-            self.add_tree(string_repeat(" ", depth * TABSIZE) + "emissiveTexture" + "\n");
+            self.addTreeMaterial(string_repeat(" ", depth * TABSIZE) + "emissiveTexture" + "\n");
         }
     }
         
@@ -558,16 +563,19 @@ function pdxGLTFBase(): pdxModelFile() constructor {
             self.materialData = array_create(_al, undefined);
         }
         for(var _i = 0; _i < _al; _i++) {
-            self.process_material(self.data.materials[_i], _i);
+            if(_i==0) {
+                self.addTreeMaterial(string_repeat(" ", depth * TABSIZE) + "Materials" + "\n");
+            }
+            self.processMaterial(self.data.materials[_i], _i, 1);
         }
     }
     
     
     static processImage = function(image, index) {
         var temp;
-        if(struct_has(image, "uri")) {
+        if(structHas(image, "uri")) {
             // If the image has a uri then we can read it from the file specified
-            temp = self.load_uri_buffer(image.uri);
+            temp = self.loadUriBuffer(image.uri);
             if(buffer_exists(temp)) {
                 self.imagesData[index] = temp;
             }
@@ -614,9 +622,9 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     }
     */
     static processBuffer = function(buffer, index) {
-        if(struct_has(buffer, "uri")) {
+        if(structHas(buffer, "uri")) {
             // If the buffer has a uri then we can read it from the file specified
-            var temp = self.load_uri_buffer(buffer.uri);
+            var temp = self.loadUriBuffer(buffer.uri);
             if(buffer_exists(temp)) {
                 self.bufferData[index] = temp;
             }
@@ -654,14 +662,14 @@ function pdxGLTFBase(): pdxModelFile() constructor {
     }
     
     static build = function() {
-        self.process_time = get_timer();
+        self.processTime = get_timer();
         self.tree = ["","",""];
         
         // Clear vertexBuffer
         array_delete(self.vertexBuffer, 0, array_length(self.vertexBuffer));
         
         // First create counts of all the main arrays
-        self.create_counts();
+        self.createCounts();
         
         // Next we run some sanity checks        
         if(is_int(self.data.scene)) {
@@ -695,10 +703,10 @@ function pdxGLTFBase(): pdxModelFile() constructor {
         // Finally build scene(s)       
         if(self.data.scene < self.counts.scenes) {
             var _scene = self.data.scenes[self.data.scene];
-            self.process_scene(_scene);
+            self.processScene(_scene);
         }
         
-        self.process_time = get_timer() - self.process_time;
+        self.processTime = get_timer() - self.processTime;
         return true;
     }
 
@@ -706,14 +714,14 @@ function pdxGLTFBase(): pdxModelFile() constructor {
 
 function pdxGLTF(): pdxGLTFBase() constructor {
     static read = function() {
-        self.load_time = get_timer();
+        self.loadTime = get_timer();
         var _buffer = buffer_create(0, buffer_grow, 1);
         if(_buffer == -1) {
             throw("Can't create buffer");
         }
         buffer_load_ext(_buffer, self.filepath + self.filename, 0);
         var _bsize = buffer_get_size(_buffer);
-        self.read_time = get_timer() - self.load_time;
+        self.readTime = get_timer() - self.loadTime;
         if(_bsize > 0) {
             var _json_txt = buffer_read(_buffer, buffer_string);
             self.json = json_parse(_json_txt);
@@ -723,7 +731,7 @@ function pdxGLTF(): pdxGLTFBase() constructor {
         if(!is_undefined(self.json)) {
             self.data = new pdxGltfDataObject();
             self.data.init(self.json);
-            self.load_time = get_timer() - self.load_time;
+            self.loadTime = get_timer() - self.loadTime;
             
             return true;
         }
@@ -737,14 +745,14 @@ function pdxGltf(): pdxGLTFBase() constructor {
     self.binbuffer = undefined;
     
     static read = function() {
-        self.load_time = get_timer();
+        self.loadTime = get_timer();
         var _buffer = buffer_create(0, buffer_grow, 1);
         if(_buffer == -1) {
             throw("Can't create buffer");
         }
         buffer_load_ext(_buffer, self.filepath + self.filename, 0);
         var _bsize = buffer_get_size(_buffer);
-        self.read_time = get_timer() - self.load_time;
+        self.readTime = get_timer() - self.loadTime;
         if(_bsize > 12) {
             var _magic = buffer_read(_buffer, buffer_u32);
             var _version = buffer_read(_buffer, buffer_u32); 
@@ -815,7 +823,7 @@ function pdxGltf(): pdxGLTFBase() constructor {
         if(!is_undefined(self.json)) {
             self.data = new pdxGltfDataObject();
             self.data.init(self.json);
-            self.load_time = get_timer() - self.load_time;
+            self.loadTime = get_timer() - self.loadTime;
             
             return true;
         }

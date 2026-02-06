@@ -14,7 +14,7 @@ if(amodel == false) {
 
 amodel_data = amodel.data;
 
-draw_text((virtual_width * virtual_scale) - 20,  20, "Process : " + string_format(amodel.process_time/1000000, 1, 6) + ", Load : " + string_format(amodel.load_time/1000000, 1, 6) + ", Read : " + string_format(amodel.read_time/1000000, 1, 6) + ", FPS : " + string(fps) + ", RealFPS : " + string(tfps/nfps));
+draw_text((virtual_width * virtual_scale) - 20,  20, "Process : " + string_format(amodel.processTime/1000000, 1, 6) + ", Load : " + string_format(amodel.loadTime/1000000, 1, 6) + ", Read : " + string_format(amodel.readTime/1000000, 1, 6) + ", FPS : " + string(fps) + ", RealFPS : " + string(tfps/nfps));
 
 draw_set_colour(c_white);
 draw_set_halign(fa_left);
@@ -110,8 +110,8 @@ if(amodel) {
             break;
         case 1:
             draw_text(20, 80, amodel.tree[0]);
-            draw_text(20, 800, amodel.tree[1]);
-            draw_text(20, 1600, amodel.tree[2]);
+            draw_text(800, 80, amodel.tree[1]);
+            draw_text(1600, 80, amodel.tree[2]);
 
             break;
         case 2:
